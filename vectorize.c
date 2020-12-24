@@ -16,7 +16,10 @@ void _vec_check_oob(lua_State *L, Vector *v, int idx) {
     luaL_error(L, "Expected positive integer, got %d", idx + 1);
   } else if (idx >= v->len) {
     luaL_error(
-      L, "Index out of bounds: %d (vector %p has length %d)", idx + 1, v,
+      L,
+      "Index out of bounds: %d (vector %p has length %d)",
+      idx + 1,
+      v,
       v->len);
   }
 }
@@ -132,6 +135,13 @@ int _vec_xpsy(lua_State *L, const Vector *x, lua_Number s, const Vector *y) {
   return 1;
 }
 
+int vec_psy(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  lua_Number scalar = luaL_checknumber(L, 2);
+  Vector *other = luaL_checkudata(L, 3, vector_mt_name);
+  return _vec_xpsy(L, self, scalar, other);
+}
+
 int vec__add(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
@@ -170,7 +180,7 @@ int vec_lib__call(lua_State *L) {
 }
 
 static const struct luaL_Reg functions[] = {
-  {"new", &vec_new}, {"at", &vec_at}, {NULL, NULL}};
+  {"new", &vec_new}, {"at", &vec_at}, {"psy", &vec_psy}, {NULL, NULL}};
 
 void create_lib_metatable(lua_State *L) {
   luaL_newmetatable(L, vector_lib_mt_name);
