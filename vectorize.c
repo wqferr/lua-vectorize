@@ -75,7 +75,7 @@ int vec_from(lua_State *L) {
         i,
         luaL_typename(L, -1));
     }
-    v->values[i-1] = lua_tonumber(L, -1);
+    v->values[i - 1] = lua_tonumber(L, -1);
     lua_pop(L, 1);
   }
   return 1;
@@ -136,6 +136,12 @@ int vec__tostring(lua_State *L) {
   lua_pushstring(L, "]");
 
   lua_concat(L, nterms);
+  return 1;
+}
+
+int vec__len(lua_State *L) {
+  Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+  lua_pushinteger(L, v->len);
   return 1;
 }
 
@@ -251,6 +257,9 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
 
   lua_pushcfunction(L, &vec__tostring);
   lua_setfield(L, -2, "__tostring");
+
+  lua_pushcfunction(L, &vec__len);
+  lua_setfield(L, -2, "__len");
 
   lua_pushcfunction(L, &vec__add);
   lua_setfield(L, -2, "__add");
