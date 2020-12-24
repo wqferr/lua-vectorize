@@ -61,6 +61,26 @@ Vector *_vec_push_new(lua_State *L, int len) {
   return lua_touserdata(L, -1);
 }
 
+int vec_from(lua_State *L) {
+  int len = luaL_len(L, 1);
+  Vector *v = _vec_push_new(L, len);
+  for (int i = 1; i <= len; i++) {
+    lua_pushinteger(L, i);
+    lua_gettable(L, 1);
+    if (!lua_isnumber(L, -1)) {
+      luaL_error(
+        L,
+        "Tried to create a vector, but element at position %d is a %s instead "
+        "of a number",
+        i,
+        luaL_typename(L, -1));
+    }
+    v->values[i-1] = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+  }
+  return 1;
+}
+
 int vec_at(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
   int idx = lua_tointeger(L, 2) - 1;
@@ -198,7 +218,12 @@ int vec_lib__call(lua_State *L) {
 }
 
 static const struct luaL_Reg functions[] = {
-  {"new", &vec_new}, {"at", &vec_at}, {"psy", &vec_psy}, {"hadamard", &vec_hadamard_product}, {NULL, NULL}};
+  {"new", &vec_new},
+  {"from", &vec_from},
+  {"at", &vec_at},
+  {"psy", &vec_psy},
+  {"hadamard", &vec_hadamard_product},
+  {NULL, NULL}};
 
 void create_lib_metatable(lua_State *L) {
   luaL_newmetatable(L, vector_lib_mt_name);
