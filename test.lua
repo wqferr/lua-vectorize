@@ -12,7 +12,10 @@ print()
 
 print(a:hadamard(b))
 print(a * b)
+print()
+
 print(2 * a)
+print(a:scale(2))
 print()
 
 x = vec.basis(3, 1)

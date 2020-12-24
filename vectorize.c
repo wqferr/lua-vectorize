@@ -213,6 +213,12 @@ int vec_hadamard_product(lua_State *L) {
   return _vec_hadamard_product(L, self, other);
 }
 
+int vec_scale(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  lua_Number scalar = luaL_checknumber(L, 2);
+  return _vec_scale(L, self, scalar);
+}
+
 int vec__add(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
@@ -277,6 +283,7 @@ static const struct luaL_Reg functions[] = {
   {"basis", &vec_basis},
   {"at", &vec_at},
   {"psy", &vec_psy},
+  {"scale", &vec_scale},
   {"hadamard", &vec_hadamard_product},
   {NULL, NULL}};
 
