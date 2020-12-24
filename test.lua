@@ -10,3 +10,6 @@ b[3] = 10
 print(b)
 
 print(a:hadamard(b))
+
+x = vec.basis(3, 1)
+print(vec.basis(3, 2))

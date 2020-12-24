@@ -11,16 +11,13 @@ typedef struct Vector {
   int len;
 } Vector;
 
-void _vec_check_oob(lua_State *L, const Vector *v, int idx) {
+void _vec_check_oob(lua_State *L, int idx, int len) {
+  // idx is the 0-based index!
   if (idx < 0) {
     luaL_error(L, "Expected positive integer, got %d", idx + 1);
-  } else if (idx >= v->len) {
+  } else if (idx >= len) {
     luaL_error(
-      L,
-      "Index out of bounds: %d (vector %p has length %d)",
-      idx + 1,
-      v,
-      v->len);
+      L, "Index out of bounds: %d (vector has length %d)", idx + 1, len);
   }
 }
 
@@ -37,6 +34,7 @@ int vec_new(lua_State *L) {
   Vector *v;
 
   len = luaL_checkinteger(L, 1);
+  lua_pop(L, 1);
   if (len <= 0) {
     luaL_error(L, "Expected positive integer for size, got %d", len);
   }
@@ -81,10 +79,31 @@ int vec_from(lua_State *L) {
   return 1;
 }
 
+int vec_ones(lua_State *L) {
+  vec_new(L);
+  Vector *new = lua_touserdata(L, -1);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = 1;
+  }
+  return 1;
+}
+
+int vec_basis(lua_State *L) {
+  int len = luaL_checkinteger(L, 1);
+  int onepos = luaL_checkinteger(L, 2) - 1;
+  lua_pop(L, 2);
+  _vec_check_oob(L, onepos, len);
+
+  Vector *new = _vec_push_new(L, len);
+  new->values[onepos] = 1;
+
+  return 1;
+}
+
 int vec_at(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
   int idx = lua_tointeger(L, 2) - 1;
-  _vec_check_oob(L, v, idx);
+  _vec_check_oob(L, idx, v->len);
   lua_pushnumber(L, v->values[idx]);
 
   return 1;
@@ -106,7 +125,7 @@ int vec__index(lua_State *L) {
 int vec__newindex(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
   int idx = luaL_checkinteger(L, 2) - 1;
-  _vec_check_oob(L, v, idx);
+  _vec_check_oob(L, idx, v->len);
 
   v->values[idx] = luaL_checknumber(L, 3);
   return 0;
@@ -230,6 +249,8 @@ int vec_lib__call(lua_State *L) {
 static const struct luaL_Reg functions[] = {
   {"new", &vec_new},
   {"from", &vec_from},
+  {"ones", &vec_ones},
+  {"basis", &vec_basis},
   {"at", &vec_at},
   {"psy", &vec_psy},
   {"hadamard", &vec_hadamard_product},
