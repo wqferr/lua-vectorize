@@ -340,6 +340,12 @@ int vec__pow(lua_State *L) {
   }
 }
 
+int vec__gc(lua_State *L) {
+  Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+  free(v->values);
+  return 0;
+}
+
 int vec__unm(lua_State *L) {
   lua_pushcfunction(L, &vec_scale);
   lua_pushvalue(L, 1);
@@ -411,6 +417,9 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
 
   lua_pushcfunction(L, &vec__unm);
   lua_setfield(L, -2, "__unm");
+
+  lua_pushcfunction(L, &vec__gc);
+  lua_setfield(L, -2, "__gc");
 
   lua_pop(L, 1);
 }
