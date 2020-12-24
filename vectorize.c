@@ -192,6 +192,14 @@ int _vec_hadamard_product(lua_State *L, const Vector *x, const Vector *y) {
   return 1;
 }
 
+int _vec_scale(lua_State *L, const Vector *v, lua_Number s) {
+  Vector *new = _vec_push_new(L, v->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = v->values[i] * s;
+  }
+  return 1;
+}
+
 int vec_psy(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number scalar = luaL_checknumber(L, 2);
@@ -234,6 +242,22 @@ int vec__sub(lua_State *L) {
     const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
     const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
     return _vec_xpsy(L, v1, -1, v2);
+  }
+}
+
+int vec__mul(lua_State *L) {
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_scale(L, v, scalar);
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    return _vec_scale(L, v, scalar);
+  } else {
+    const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_hadamard_product(L, v1, v2);
   }
 }
 
@@ -287,6 +311,9 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
 
   lua_pushcfunction(L, &vec__sub);
   lua_setfield(L, -2, "__sub");
+
+  lua_pushcfunction(L, &vec__mul);
+  lua_setfield(L, -2, "__mul");
 
   lua_pop(L, 1);
 }
