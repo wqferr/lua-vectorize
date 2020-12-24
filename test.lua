@@ -4,8 +4,11 @@ print(vec.new)
 a = vec(3)
 a[1] = 1
 a[2] = 2
+a[3] = 3
 
-print(a)
-print(1 + (a + 3) + 1)
--- print(inspect(getmetatable(a + a)))
-print(a+a+a+2)
+b = vec(3)
+b[1] = -1
+b[2] = 0
+b[3] = 10
+
+print(a:hadamard(b))
