@@ -200,6 +200,23 @@ int _vec_scale(lua_State *L, const Vector *v, lua_Number s) {
   return 1;
 }
 
+int _vec_elmwise_div(lua_State *L, const Vector *x, const Vector *y) {
+  _vec_check_same_len(L, x, y);
+  Vector *new = _vec_push_new(L, x->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = x->values[i] / y->values[i];
+  }
+  return 1;
+}
+
+int _vec_elmwise_div_scalar(lua_State *L, lua_Number scalar, const Vector *x) {
+  Vector *new = _vec_push_new(L, x->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = scalar / x->values[i];
+  }
+  return 1;
+}
+
 int vec_psy(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number scalar = luaL_checknumber(L, 2);
@@ -267,6 +284,22 @@ int vec__mul(lua_State *L) {
   }
 }
 
+int vec__div(lua_State *L) {
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_elmwise_div_scalar(L, scalar, v);
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    return _vec_scale(L, v, 1 / scalar);
+  } else {
+    const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_elmwise_div(L, v1, v2);
+  }
+}
+
 int vec_lib__call(lua_State *L) {
   lua_remove(L, 1);
   if (lua_isnumber(L, 1)) {
@@ -321,6 +354,9 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
 
   lua_pushcfunction(L, &vec__mul);
   lua_setfield(L, -2, "__mul");
+
+  lua_pushcfunction(L, &vec__div);
+  lua_setfield(L, -2, "__div");
 
   lua_pop(L, 1);
 }

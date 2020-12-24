@@ -20,3 +20,10 @@ print()
 
 x = vec.basis(3, 1)
 print(vec.basis(3, 2))
+print()
+
+print(a / b)
+print(a / 2)
+print()
+
+print(1 / vec{0, 1, 2})
