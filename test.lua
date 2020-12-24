@@ -26,4 +26,12 @@ print(a / b)
 print(a / 2)
 print()
 
-print(1 / vec{0, 1, 2})
+print(1 / vec {0, 1, 2})
+print()
+
+x = vec {1, 2, 3}
+y = vec {2, 0.1, -2}
+print(x ^ y)
+print(y ^ x)
+print(x ^ 2)
+print(2 ^ x)

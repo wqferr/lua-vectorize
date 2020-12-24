@@ -2,6 +2,7 @@
 #include <lua.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <math.h>
 
 const char vector_mt_name[] = "vector";
 const char vector_lib_mt_name[] = "liblua-vectorize";
@@ -166,11 +167,34 @@ int vec__len(lua_State *L) {
 
 int _vec_broadcast_add(lua_State *L, const Vector *v, lua_Number scalar) {
   Vector *new = _vec_push_new(L, v->len);
-
   for (int i = 0; i < new->len; i++) {
     new->values[i] = v->values[i] + scalar;
   }
+  return 1;
+}
 
+int _vec_broadcast_pow(lua_State *L, const Vector *v, lua_Number e) {
+  Vector *new = _vec_push_new(L, v->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = pow(v->values[i], e);
+  }
+  return 1;
+}
+
+int _vec_broadcast_pow_rev(lua_State *L, lua_Number base, const Vector *v) {
+  Vector *new = _vec_push_new(L, v->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = pow(base, v->values[i]);
+  }
+  return 1;
+}
+
+int _vec_pow(lua_State *L, const Vector *b, const Vector *e) {
+  _vec_check_same_len(L, b, e);
+  Vector *new = _vec_push_new(L, b->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = pow(b->values[i], e->values[i]);
+  }
   return 1;
 }
 
@@ -300,6 +324,22 @@ int vec__div(lua_State *L) {
   }
 }
 
+int vec__pow(lua_State *L) {
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_broadcast_pow_rev(L, scalar, v);
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    return _vec_broadcast_pow(L, v, scalar);
+  } else {
+    const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_pow(L, v1, v2);
+  }
+}
+
 int vec_lib__call(lua_State *L) {
   lua_remove(L, 1);
   if (lua_isnumber(L, 1)) {
@@ -357,6 +397,9 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
 
   lua_pushcfunction(L, &vec__div);
   lua_setfield(L, -2, "__div");
+
+  lua_pushcfunction(L, &vec__pow);
+  lua_setfield(L, -2, "__pow");
 
   lua_pop(L, 1);
 }
