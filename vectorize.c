@@ -46,6 +46,14 @@ int vec_new(lua_State *L) {
   return 1;
 }
 
+Vector *_vec_push_new(lua_State *L, int len) {
+  lua_pushcfunction(L, &vec_new);
+  lua_pushinteger(L, len);
+  lua_call(L, 1, 1);
+
+  return lua_touserdata(L, -1);
+}
+
 int vec_at(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
   int idx = lua_tointeger(L, 2) - 1;
@@ -104,12 +112,53 @@ int vec__tostring(lua_State *L) {
   return 1;
 }
 
+int _vec_broadcast_add(lua_State *L, const Vector *v, lua_Number scalar) {
+  Vector *new = _vec_push_new(L, v->len);
+
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = v->values[i] + scalar;
+  }
+
+  return 1;
+}
+
+int _vec_add(lua_State *L, const Vector *v1, const Vector *v2) {
+  if (v1->len != v2->len) {
+    luaL_error(L, "Vectors must have the same length (%d != %d)", v1->len,
+               v2->len);
+  }
+
+  Vector *new = _vec_push_new(L, v1->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = v1->values[i] + v2->values[i];
+  }
+
+  return 1;
+}
+
+int vec__add(lua_State *L) {
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_broadcast_add(L, v, scalar);
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    return _vec_broadcast_add(L, v, scalar);
+  } else {
+    const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_add(L, v1, v2);
+  }
+}
+
 int vec_lib__call(lua_State *L) {
   lua_remove(L, 1);
   return vec_new(L);
 }
 
-static const struct luaL_Reg functions[] = {{"new", &vec_new}, {NULL, NULL}};
+static const struct luaL_Reg functions[] = {
+    {"new", &vec_new}, {"at", &vec_at}, {NULL, NULL}};
 
 void create_lib_metatable(lua_State *L) {
   luaL_newmetatable(L, vector_lib_mt_name);
@@ -133,6 +182,9 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
 
   lua_pushcfunction(L, &vec__tostring);
   lua_setfield(L, -2, "__tostring");
+
+  lua_pushcfunction(L, &vec__add);
+  lua_setfield(L, -2, "__add");
 
   lua_pop(L, 1);
 }
