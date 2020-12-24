@@ -340,6 +340,14 @@ int vec__pow(lua_State *L) {
   }
 }
 
+int vec__unm(lua_State *L) {
+  lua_pushcfunction(L, &vec_scale);
+  lua_pushvalue(L, 1);
+  lua_pushnumber(L, -1);
+  lua_call(L, 2, 1);
+  return 1;
+}
+
 int vec_lib__call(lua_State *L) {
   lua_remove(L, 1);
   if (lua_isnumber(L, 1)) {
@@ -400,6 +408,9 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
 
   lua_pushcfunction(L, &vec__pow);
   lua_setfield(L, -2, "__pow");
+
+  lua_pushcfunction(L, &vec__unm);
+  lua_setfield(L, -2, "__unm");
 
   lua_pop(L, 1);
 }
