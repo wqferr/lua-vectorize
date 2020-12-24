@@ -56,11 +56,18 @@ int vec_new(lua_State *L) {
 
 int vec__index(lua_State *L) {
     Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    int idx = luaL_checkinteger(L, 2);
-    _vec_check_oob(L, v, idx);
 
-    lua_pushnumber(L, v->values[idx]);
-    return 1;
+    if (lua_isinteger(L, 2)) {
+        int idx = lua_tointeger(L, 2);
+        _vec_check_oob(L, v, idx);
+        lua_pushnumber(L, v->values[idx]);
+        return 1;
+    } else {
+        const char *fname = luaL_checkstring(L, 2);
+        luaL_getmetafield(L, 1, "__lib");
+        lua_getfield(L, -1, fname);
+        return 1;
+    }
 }
 
 int vec__newindex(lua_State *L) {
@@ -85,7 +92,7 @@ int vec__tostring(lua_State *L) {
 
         // Value is a number, tostring changes it in the stack
         // as well as returning it
-        (void)lua_tostring(L, -1);
+        (void) lua_tostring(L, -1);
 
         lua_pushstring(L, ", ");
         nterms++;
@@ -115,13 +122,10 @@ void create_lib_metatable(lua_State *L) {
 
 void create_vector_metatable(lua_State *L, int libstackidx) {
     luaL_newmetatable(L, vector_mt_name);
+    libstackidx--; // new value was pushed!
 
     lua_pushvalue(L, libstackidx);
-    lua_setfield(
-        L, -2, "__index"); // TODO make __index a function so people can use v[1]
-
-    /* lua_pushcfunction(L, &vec_add); */
-    /* lua_setfield(L, -2, "__add"); */
+    lua_setfield(L, -2, "__lib");
 
     lua_pushcfunction(L, &vec__index);
     lua_setfield(L, -2, "__index");
