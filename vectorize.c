@@ -3,10 +3,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-// TODO decide if it's going to be 0- or 1-based indexing...
-// leaning towards 1-based to be consistent with the rest of lua
-// maybe let user configure it? Might make it too confusing
-
 const char vector_mt_name[] = "vector";
 const char vector_lib_mt_name[] = "liblua-vectorize";
 
@@ -19,8 +15,9 @@ void _vec_check_oob(lua_State *L, Vector *v, int idx) {
   if (idx < 0) {
     luaL_error(L, "Expected positive integer, got %d", idx + 1);
   } else if (idx >= v->len) {
-    luaL_error(L, "Index out of bounds: %d (vector %p has length %d)", idx + 1,
-               v, v->len);
+    luaL_error(
+      L, "Index out of bounds: %d (vector %p has length %d)", idx + 1, v,
+      v->len);
   }
 }
 
@@ -122,17 +119,16 @@ int _vec_broadcast_add(lua_State *L, const Vector *v, lua_Number scalar) {
   return 1;
 }
 
-int _vec_add(lua_State *L, const Vector *v1, const Vector *v2) {
-  if (v1->len != v2->len) {
-    luaL_error(L, "Vectors must have the same length (%d != %d)", v1->len,
-               v2->len);
+int _vec_xpsy(lua_State *L, const Vector *x, lua_Number s, const Vector *y) {
+  if (x->len != y->len) {
+    luaL_error(
+      L, "Vectors must have the same length (%d != %d)", x->len, y->len);
   }
 
-  Vector *new = _vec_push_new(L, v1->len);
+  Vector *new = _vec_push_new(L, x->len);
   for (int i = 0; i < new->len; i++) {
-    new->values[i] = v1->values[i] + v2->values[i];
+    new->values[i] = x->values[i] + s * y->values[i];
   }
-
   return 1;
 }
 
@@ -148,7 +144,23 @@ int vec__add(lua_State *L) {
   } else {
     const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
     const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_add(L, v1, v2);
+    return _vec_xpsy(L, v1, 1, v2);
+  }
+}
+
+int vec__sub(lua_State *L) {
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_broadcast_add(L, v, -scalar);
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    return _vec_broadcast_add(L, v, -scalar);
+  } else {
+    const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    return _vec_xpsy(L, v1, -1, v2);
   }
 }
 
@@ -158,7 +170,7 @@ int vec_lib__call(lua_State *L) {
 }
 
 static const struct luaL_Reg functions[] = {
-    {"new", &vec_new}, {"at", &vec_at}, {NULL, NULL}};
+  {"new", &vec_new}, {"at", &vec_at}, {NULL, NULL}};
 
 void create_lib_metatable(lua_State *L) {
   luaL_newmetatable(L, vector_lib_mt_name);
@@ -185,6 +197,9 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
 
   lua_pushcfunction(L, &vec__add);
   lua_setfield(L, -2, "__add");
+
+  lua_pushcfunction(L, &vec__sub);
+  lua_setfield(L, -2, "__sub");
 
   lua_pop(L, 1);
 }
