@@ -1,6 +1,6 @@
 vec = require "vectorize"
 
-a = vec.from {1, 2, 3}
+a = vec {1, 2, 3}
 print(a)
 
 b = vec(3)

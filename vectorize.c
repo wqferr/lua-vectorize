@@ -214,7 +214,11 @@ int vec__sub(lua_State *L) {
 
 int vec_lib__call(lua_State *L) {
   lua_remove(L, 1);
-  return vec_new(L);
+  if (lua_isnumber(L, 1)) {
+    return vec_new(L);
+  } else {
+    return vec_from(L);
+  }
 }
 
 static const struct luaL_Reg functions[] = {
