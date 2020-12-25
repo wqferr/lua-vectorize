@@ -88,7 +88,6 @@ int vec_linspace(lua_State *L) {
   lua_Number step_num = end - start;
   lua_Number step_den = len - 1;
 
-  lua_settop(L, 0);
   Vector *new = _vec_push_new(L, len);
 
   for (int i = 0; i < len; i++) {
@@ -278,6 +277,33 @@ int vec_scale(lua_State *L) {
   return _vec_scale(L, self, scalar);
 }
 
+int vec_exp(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = exp(self->values[i]);
+  }
+  return 1;
+}
+
+int vec_ln(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = log(self->values[i]);
+  }
+  return 1;
+}
+
+int vec_ln1p(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = log(1 + self->values[i]);
+  }
+  return 1;
+}
+
 int vec__add(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
@@ -387,6 +413,9 @@ static const struct luaL_Reg functions[] = {
   {"ones", &vec_ones},
   {"basis", &vec_basis},
   {"linspace", &vec_linspace},
+  {"exp", &vec_exp},
+  {"ln", &vec_ln},
+  {"ln1p", &vec_ln1p},
   {"at", &vec_at},
   {"psy", &vec_psy},
   {"scale", &vec_scale},

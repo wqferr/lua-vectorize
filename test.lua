@@ -38,6 +38,6 @@ print(2 ^ x)
 
 print()
 
-t = vec.linspace(-math.pi, math.pi, 25)
-print(t)
-print(t - (t^3)/6 + (t^5)/120 - (t^7)/5040 + (t^9)/362880)
+print(vec.linspace(-1, 1, 11):exp())
+print(vec.linspace(0, 2, 11):ln())
+print(vec.linspace(0, 2, 11):ln1p())
