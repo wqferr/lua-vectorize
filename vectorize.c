@@ -358,6 +358,60 @@ int vec_tanh(lua_State *L) {
   return 1;
 }
 
+int vec_asin(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = asin(self->values[i]);
+  }
+  return 1;
+}
+
+int vec_acos(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = acos(self->values[i]);
+  }
+  return 1;
+}
+
+int vec_atan(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = atan(self->values[i]);
+  }
+  return 1;
+}
+
+int vec_asinh(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = asinh(self->values[i]);
+  }
+  return 1;
+}
+
+int vec_acosh(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = acosh(self->values[i]);
+  }
+  return 1;
+}
+
+int vec_atanh(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = atanh(self->values[i]);
+  }
+  return 1;
+}
+
 int vec__add(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
@@ -476,6 +530,12 @@ static const struct luaL_Reg functions[] = {
   {"sinh", &vec_sinh},
   {"cosh", &vec_cosh},
   {"tanh", &vec_tanh},
+  {"asin", &vec_asin},
+  {"acos", &vec_acos},
+  {"atan", &vec_atan},
+  {"asinh", &vec_asinh},
+  {"acosh", &vec_acosh},
+  {"atanh", &vec_atanh},
   {"at", &vec_at},
   {"psy", &vec_psy},
   {"scale", &vec_scale},

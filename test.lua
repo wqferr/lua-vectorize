@@ -41,3 +41,6 @@ print()
 print(vec.linspace(-1, 1, 11):exp())
 print(vec.linspace(0, 2, 11):ln())
 print(vec.linspace(0, 2, 11):ln1p())
+
+print(vec.linspace(-math.pi, math.pi, 5):sin():asin())
+print(vec.linspace(-math.pi, math.pi, 5):cos():acos())
