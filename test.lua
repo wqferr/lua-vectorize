@@ -35,3 +35,9 @@ print(x ^ y)
 print(y ^ x)
 print(x ^ 2)
 print(2 ^ x)
+
+print()
+
+t = vec.linspace(-math.pi, math.pi, 25)
+print(t)
+print(t - (t^3)/6 + (t^5)/120 - (t^7)/5040 + (t^9)/362880)

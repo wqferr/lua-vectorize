@@ -1,8 +1,9 @@
 #include <lauxlib.h>
 #include <lua.h>
+#include <math.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
 
 const char vector_mt_name[] = "vector";
 const char vector_lib_mt_name[] = "liblua-vectorize";
@@ -77,6 +78,23 @@ int vec_from(lua_State *L) {
     v->values[i - 1] = lua_tonumber(L, -1);
     lua_pop(L, 1);
   }
+  return 1;
+}
+
+int vec_linspace(lua_State *L) {
+  lua_Number start = luaL_checknumber(L, 1);
+  lua_Number end = luaL_checknumber(L, 2);
+  lua_Integer len = luaL_checkinteger(L, 3);
+  lua_Number step_num = end - start;
+  lua_Number step_den = len - 1;
+
+  lua_settop(L, 0);
+  Vector *new = _vec_push_new(L, len);
+
+  for (int i = 0; i < len; i++) {
+    new->values[i] = start + ((i * step_num) / step_den);
+  }
+
   return 1;
 }
 
@@ -355,7 +373,7 @@ int vec__unm(lua_State *L) {
 }
 
 int vec_lib__call(lua_State *L) {
-  lua_remove(L, 1);
+  lua_remove(L, 1); // remove "self" argument
   if (lua_isnumber(L, 1)) {
     return vec_new(L);
   } else {
@@ -368,6 +386,7 @@ static const struct luaL_Reg functions[] = {
   {"from", &vec_from},
   {"ones", &vec_ones},
   {"basis", &vec_basis},
+  {"linspace", &vec_linspace},
   {"at", &vec_at},
   {"psy", &vec_psy},
   {"scale", &vec_scale},
