@@ -277,6 +277,41 @@ int vec_scale(lua_State *L) {
   return _vec_scale(L, self, scalar);
 }
 
+int vec_sq(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = self->values[i] * self->values[i];
+  }
+  return 1;
+}
+
+int vec_sqrt(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = sqrt(self->values[i]);
+  }
+  return 1;
+}
+
+int vec_cb(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = self->values[i] * self->values[i] * self->values[i];
+  }
+  return 1;
+}
+
+int vec_cbrt(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = cbrt(self->values[i]);
+  }
+  return 1;
+}
 int vec_exp(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   Vector *new = _vec_push_new(L, self->len);
@@ -521,6 +556,12 @@ static const struct luaL_Reg functions[] = {
   {"ones", &vec_ones},
   {"basis", &vec_basis},
   {"linspace", &vec_linspace},
+  {"sq", &vec_sq},
+  {"square", &vec_sq},
+  {"sqrt", &vec_sqrt},
+  {"cb", &vec_cb},
+  {"cube", &vec_cb},
+  {"cbrt", &vec_cbrt},
   {"exp", &vec_exp},
   {"ln", &vec_ln},
   {"ln1p", &vec_ln1p},
