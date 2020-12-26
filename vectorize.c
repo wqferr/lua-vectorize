@@ -178,14 +178,14 @@ int vec_norm2(lua_State *L) {
 }
 
 int vec_trapz(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  lua_Number interval_start = luaL_optnumber(L, 2, 0);
-  lua_Number interval_end = luaL_optnumber(L, 3, interval_start + 1);
+  Vector *y = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *x = luaL_checkudata(L, 2, vector_mt_name);
   lua_Number total = 0;
+  _vec_check_same_len(L, y, x);
 
-  lua_Number dx = (interval_end - interval_start) / (self->len - 1);
-  for (int i = 1; i < self->len; i++) {
-    total += ((self->values[i] + self->values[i - 1]) * dx) / 2;
+  for (int i = 1; i < y->len; i++) {
+    lua_Number dx = (x->values[i] - x->values[i - 1]);
+    total += ((y->values[i] + y->values[i - 1]) * dx) / 2;
   }
   lua_pushnumber(L, total);
   return 1;
