@@ -199,12 +199,12 @@ int vec__len(lua_State *L) {
   return 1;
 }
 
-int _vec_broadcast_add(lua_State *L, const Vector *v, lua_Number scalar) {
-  Vector *new = _vec_push_new(L, v->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = v->values[i] + scalar;
+void _vec_broadcast_add_into(
+  lua_State *L, Vector *v, lua_Number scalar, Vector *out) {
+  _vec_check_same_len(L, v, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = v->values[i] + scalar;
   }
-  return 1;
 }
 
 int _vec_broadcast_pow(lua_State *L, const Vector *v, lua_Number e) {
@@ -232,13 +232,13 @@ int _vec_pow(lua_State *L, const Vector *b, const Vector *e) {
   return 1;
 }
 
-int _vec_xpsy(lua_State *L, const Vector *x, lua_Number s, const Vector *y) {
+void _vec_xpsy_into(
+  lua_State *L, const Vector *x, lua_Number s, const Vector *y, Vector *out) {
   _vec_check_same_len(L, x, y);
-  Vector *new = _vec_push_new(L, x->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = x->values[i] + s * y->values[i];
+  _vec_check_same_len(L, x, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = x->values[i] + s * y->values[i];
   }
-  return 1;
 }
 
 int _vec_hadamard_product(lua_State *L, const Vector *x, const Vector *y) {
@@ -279,7 +279,12 @@ int vec_psy(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number scalar = luaL_checknumber(L, 2);
   Vector *other = luaL_checkudata(L, 3, vector_mt_name);
-  return _vec_xpsy(L, self, scalar, other);
+  // FIXME
+  (void)self;
+  (void)scalar;
+  (void)other;
+  return 0;
+  /* return _vec_xpsy(L, self, scalar, other); */
 }
 
 int vec_hadamard_product(lua_State *L) {
@@ -365,39 +370,60 @@ int vec_iter(lua_State *L) {
   return 3;
 }
 
-int vec__add(lua_State *L) {
+int vec_add_into(lua_State *L) {
+  Vector *out = NULL;
+  if (lua_gettop(L) > 2) {
+    out = luaL_checkudata(L, 3, vector_mt_name);
+  }
+
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
-    const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_broadcast_add(L, v, scalar);
+    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+    }
+    _vec_broadcast_add_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
   } else if (lua_isnumber(L, 2)) {
     lua_Number scalar = lua_tonumber(L, 2);
-    const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    return _vec_broadcast_add(L, v, scalar);
+    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+      lua_pushvalue(L, 1);
+    }
+    _vec_broadcast_add_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
   } else {
-    const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
-    const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_xpsy(L, v1, 1, v2);
+    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v1;
+      lua_pushvalue(L, 1);
+    } // else out on top of stack already
+    _vec_xpsy_into(L, v1, 1, v2, out);
+    return 1;
   }
 }
 
-int vec__sub(lua_State *L) {
-  if (lua_isnumber(L, 1)) {
-    lua_Number scalar = lua_tonumber(L, 1);
-    const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_broadcast_add(L, v, -scalar);
-  } else if (lua_isnumber(L, 2)) {
-    lua_Number scalar = lua_tonumber(L, 2);
-    const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    return _vec_broadcast_add(L, v, -scalar);
-  } else {
-    const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
-    const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_xpsy(L, v1, -1, v2);
-  }
-}
+/* int vec_sub(lua_State *L) { */
+/*   if (lua_isnumber(L, 1)) { */
+/*     lua_Number scalar = lua_tonumber(L, 1); */
+/*     const Vector *v = luaL_checkudata(L, 2, vector_mt_name); */
+/*     return _vec_broadcast_add(L, v, -scalar); */
+/*   } else if (lua_isnumber(L, 2)) { */
+/*     lua_Number scalar = lua_tonumber(L, 2); */
+/*     const Vector *v = luaL_checkudata(L, 1, vector_mt_name); */
+/*     return _vec_broadcast_add(L, v, -scalar); */
+/*   } else { */
+/*     const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name); */
+/*     const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name); */
+/*     return _vec_xpsy(L, v1, -1, v2); */
+/*   } */
+/* } */
 
-int vec__mul(lua_State *L) {
+int vec_mul(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
     const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
@@ -413,7 +439,7 @@ int vec__mul(lua_State *L) {
   }
 }
 
-int vec__div(lua_State *L) {
+int vec_div(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
     const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
@@ -429,7 +455,7 @@ int vec__div(lua_State *L) {
   }
 }
 
-int vec__pow(lua_State *L) {
+int vec_pow(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
     const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
@@ -445,18 +471,18 @@ int vec__pow(lua_State *L) {
   }
 }
 
-int vec__gc(lua_State *L) {
-  Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-  free(v->values);
-  return 0;
-}
-
-int vec__unm(lua_State *L) {
+int vec_neg(lua_State *L) {
   lua_pushcfunction(L, &vec_scale);
   lua_pushvalue(L, 1);
   lua_pushnumber(L, -1);
   lua_call(L, 2, 1);
   return 1;
+}
+
+int vec__gc(lua_State *L) {
+  Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+  free(v->values);
+  return 0;
 }
 
 int vec_lib__call(lua_State *L) {
@@ -477,12 +503,18 @@ static const struct luaL_Reg functions[] = {
   {"dup", &vec_dup},
   {"dup_into", &vec_dup_into},
 
-  {"add", &vec__add},
-  {"sub", &vec__sub},
-  {"mul", &vec__mul},
-  {"div", &vec__div},
-  {"pow", &vec__pow},
-  {"neg", &vec__unm},
+  /* {"add", &vec_add}, */
+  {"add_into", &vec_add_into},
+  /* {"sub", &vec_sub}, */
+  /* {"sub_into", &vec_sub_into}, */
+  {"mul", &vec_mul},
+  /* {"mul_into", &vec_mul_into}, */
+  {"div", &vec_div},
+  /* {"div_into", &vec_div_into}, */
+  {"pow", &vec_pow},
+  /* {"pow_into", &vec_pow_into}, */
+  {"neg", &vec_neg},
+  /* {"neg_into", &vec_neg_into}, */
 
   {"at", &vec_at},
   {"iter", &vec_iter},
@@ -566,22 +598,22 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
   lua_pushcfunction(L, &vec__len);
   lua_setfield(L, -2, "__len");
 
-  lua_pushcfunction(L, &vec__add);
-  lua_setfield(L, -2, "__add");
+  /* lua_pushcfunction(L, &vec_add); */
+  /* lua_setfield(L, -2, "__add"); */
 
-  lua_pushcfunction(L, &vec__sub);
-  lua_setfield(L, -2, "__sub");
+  /* lua_pushcfunction(L, &vec_sub); */
+  /* lua_setfield(L, -2, "__sub"); */
 
-  lua_pushcfunction(L, &vec__mul);
+  lua_pushcfunction(L, &vec_mul);
   lua_setfield(L, -2, "__mul");
 
-  lua_pushcfunction(L, &vec__div);
+  lua_pushcfunction(L, &vec_div);
   lua_setfield(L, -2, "__div");
 
-  lua_pushcfunction(L, &vec__pow);
+  lua_pushcfunction(L, &vec_pow);
   lua_setfield(L, -2, "__pow");
 
-  lua_pushcfunction(L, &vec__unm);
+  lua_pushcfunction(L, &vec_neg);
   lua_setfield(L, -2, "__unm");
 
   lua_pushcfunction(L, &vec__gc);

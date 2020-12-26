@@ -1,23 +1,20 @@
 -- BENCHMARK CONFIG
 
 local vec = require "vectorize"
-local v = vec.linspace(-2, 2, 2001)
+local v = vec.linspace(-2, 2, 20001)
+local w = v:dup()
 
 local n = 100000
-local f1 = function(x)
-    return x:ln1p()
-end
+local f1 = vec.exp
 local args1 = {}
 
-local f2 = function(x)
-    return (x + 1):ln()
-end
-local args2 = {}
+local f2 = vec.exp_into
+local args2 = {w}
 
-local fraw = function(x)
-    return math.log(1 + x)
-end
-local argsraw = {}
+-- local fraw = function(x)
+--     return math.log(1 + x)
+-- end
+-- local argsraw = {}
 
 -- BENCHMARK PER SE
 
