@@ -431,21 +431,66 @@ int vec_add(lua_State *L) {
   }
 }
 
-/* int vec_sub(lua_State *L) { */
-/*   if (lua_isnumber(L, 1)) { */
-/*     lua_Number scalar = lua_tonumber(L, 1); */
-/*     const Vector *v = luaL_checkudata(L, 2, vector_mt_name); */
-/*     return _vec_broadcast_add(L, v, -scalar); */
-/*   } else if (lua_isnumber(L, 2)) { */
-/*     lua_Number scalar = lua_tonumber(L, 2); */
-/*     const Vector *v = luaL_checkudata(L, 1, vector_mt_name); */
-/*     return _vec_broadcast_add(L, v, -scalar); */
-/*   } else { */
-/*     const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name); */
-/*     const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name); */
-/*     return _vec_xpsy(L, v1, -1, v2); */
-/*   } */
-/* } */
+int vec_sub_into(lua_State *L) {
+  Vector *out = NULL;
+  if (lua_gettop(L) > 2) {
+    out = luaL_checkudata(L, 3, vector_mt_name);
+  }
+
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+    }
+    _vec_broadcast_add_into(L, v, -scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+      lua_pushvalue(L, 1);
+    }
+    _vec_broadcast_add_into(L, v, -scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else {
+    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v1;
+      lua_pushvalue(L, 1);
+    } // else out on top of stack already
+    _vec_xpsy_into(L, v1, -1, v2, out);
+    return 1;
+  }
+}
+
+int vec_sub(lua_State *L) {
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_broadcast_add_into(L, v, -scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_broadcast_add_into(L, v, -scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else {
+    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    Vector *out = _vec_push_new(L, v1->len);
+    _vec_xpsy_into(L, v1, -1, v2, out);
+    return 1;
+  }
+}
 
 int vec_mul(lua_State *L) {
   if (lua_isnumber(L, 1)) {
@@ -529,8 +574,8 @@ static const struct luaL_Reg functions[] = {
 
   {"add", &vec_add},
   {"add_into", &vec_add_into},
-  /* {"sub", &vec_sub}, */
-  /* {"sub_into", &vec_sub_into}, */
+  {"sub", &vec_sub},
+  {"sub_into", &vec_sub_into},
   {"mul", &vec_mul},
   /* {"mul_into", &vec_mul_into}, */
   {"div", &vec_div},
@@ -625,8 +670,8 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
   lua_pushcfunction(L, &vec_add);
   lua_setfield(L, -2, "__add");
 
-  /* lua_pushcfunction(L, &vec_sub); */
-  /* lua_setfield(L, -2, "__sub"); */
+  lua_pushcfunction(L, &vec_sub);
+  lua_setfield(L, -2, "__sub");
 
   lua_pushcfunction(L, &vec_mul);
   lua_setfield(L, -2, "__mul");
