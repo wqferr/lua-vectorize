@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 const char vector_mt_name[] = "vector";
 const char vector_lib_mt_name[] = "liblua-vectorize";
@@ -115,6 +116,13 @@ int vec_basis(lua_State *L) {
   Vector *new = _vec_push_new(L, len);
   new->values[onepos] = 1;
 
+  return 1;
+}
+
+int vec_dup(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  memcpy(new->values, self->values, self->len * sizeof(lua_Number));
   return 1;
 }
 
@@ -277,26 +285,25 @@ int vec_scale(lua_State *L) {
   return _vec_scale(L, self, scalar);
 }
 
-
-#define def_vec_op(name, expr) \
-int vec_ ## name ## _into(lua_State *L) {\
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);\
-  Vector *out = luaL_checkudata(L, 2, vector_mt_name);\
-  _vec_check_same_len(L, self, out);\
-  for (int i = 0; i < self->len; i++) {\
-    out->values[i] = ( expr ) ;\
-  }\
-  return 0;\
-}\
-\
-int vec_ ## name (lua_State *L) {\
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);\
-  Vector *out = _vec_push_new(L, self->len);\
-  for (int i = 0; i < out->len; i++) {\
-    out->values[i] = ( expr ) ;\
-  }\
-  return 1;\
-}\
+#define def_vec_op(name, expr)                                                 \
+  int vec_##name##_into(lua_State *L) {                                        \
+    Vector *self = luaL_checkudata(L, 1, vector_mt_name);                      \
+    Vector *out = luaL_checkudata(L, 2, vector_mt_name);                       \
+    _vec_check_same_len(L, self, out);                                         \
+    for (int i = 0; i < self->len; i++) {                                      \
+      out->values[i] = (expr);                                                 \
+    }                                                                          \
+    return 0;                                                                  \
+  }                                                                            \
+                                                                               \
+  int vec_##name(lua_State *L) {                                               \
+    Vector *self = luaL_checkudata(L, 1, vector_mt_name);                      \
+    Vector *out = _vec_push_new(L, self->len);                                 \
+    for (int i = 0; i < out->len; i++) {                                       \
+      out->values[i] = (expr);                                                 \
+    }                                                                          \
+    return 1;                                                                  \
+  }
 
 #define def_vec_op_func(fname) def_vec_op(fname, fname(self->values[i]))
 
@@ -322,14 +329,14 @@ def_vec_op_func(atan);
 def_vec_op_func(atanh);
 
 int _vec_iter_closure(lua_State *L) {
-  Vector *v = lua_touserdata(L, 1); // immutable iter state
+  Vector *v = lua_touserdata(L, 1);          // immutable iter state
   lua_Integer cur_idx = lua_tointeger(L, 2); // mutable iter state
 
   if (cur_idx >= v->len) {
     return 0;
   }
 
-  lua_pushinteger(L, cur_idx + 1); // mutable iter state
+  lua_pushinteger(L, cur_idx + 1);       // mutable iter state
   lua_pushnumber(L, v->values[cur_idx]); // extra values
   return 2;
 }
@@ -452,6 +459,8 @@ static const struct luaL_Reg functions[] = {
   {"ones", &vec_ones},
   {"basis", &vec_basis},
   {"linspace", &vec_linspace},
+  {"dup", &vec_dup},
+
   {"add", &vec__add},
   {"sub", &vec__sub},
   {"mul", &vec__mul},
