@@ -1,14 +1,13 @@
 vec = require "vectorize"
 
-a = vec {1, 2, 3}
-print(a)
-print(a+a)
-print(a+1)
-print(1+a)
-a:add_into(1)
-print(a)
-print(a-a)
-print((a+1)-(1+a))
-for i, v in a:iter() do
-    print(i, v)
-end
+a = vec{1, 2, 3}
+b = vec{-1, 1, -1}
+print(a * b)
+print(b * a)
+print(a:hadamard_into(b))
+print(a:div(3))
+print(a:div(3))
+print(a:mul_into(3))
+print(a:mul_into(3))
+print(a:mul_into(3))
+print(a:mul_into(3))

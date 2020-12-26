@@ -241,38 +241,45 @@ void _vec_xpsy_into(
   }
 }
 
-int _vec_hadamard_product(lua_State *L, const Vector *x, const Vector *y) {
+void _vec_hadamard_product_into(
+  lua_State *L, const Vector *x, const Vector *y, Vector *out) {
   _vec_check_same_len(L, x, y);
-  Vector *new = _vec_push_new(L, x->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = x->values[i] * y->values[i];
+  _vec_check_same_len(L, x, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = x->values[i] * y->values[i];
   }
-  return 1;
 }
 
-int _vec_scale(lua_State *L, const Vector *v, lua_Number s) {
-  Vector *new = _vec_push_new(L, v->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = v->values[i] * s;
+void _vec_scale_into(lua_State *L, const Vector *v, lua_Number s, Vector *out) {
+  _vec_check_same_len(L, v, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = v->values[i] * s;
   }
-  return 1;
 }
 
-int _vec_elmwise_div(lua_State *L, const Vector *x, const Vector *y) {
+void _vec_scale_reciproc_into(
+  lua_State *L, const Vector *v, lua_Number s, Vector *out) {
+  _vec_check_same_len(L, v, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = v->values[i] / s;
+  }
+}
+
+void _vec_elmwise_div_into(
+  lua_State *L, const Vector *x, const Vector *y, Vector *out) {
   _vec_check_same_len(L, x, y);
-  Vector *new = _vec_push_new(L, x->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = x->values[i] / y->values[i];
+  _vec_check_same_len(L, x, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = x->values[i] / y->values[i];
   }
-  return 1;
 }
 
-int _vec_elmwise_div_scalar(lua_State *L, lua_Number scalar, const Vector *x) {
-  Vector *new = _vec_push_new(L, x->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = scalar / x->values[i];
+void _vec_elmwise_div_scalar_into(
+  lua_State *L, lua_Number scalar, const Vector *x, Vector *out) {
+  _vec_check_same_len(L, x, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = scalar / x->values[i];
   }
-  return 1;
 }
 
 int vec_psy(lua_State *L) {
@@ -290,13 +297,49 @@ int vec_psy(lua_State *L) {
 int vec_hadamard_product(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   Vector *other = luaL_checkudata(L, 2, vector_mt_name);
-  return _vec_hadamard_product(L, self, other);
+  Vector *new = _vec_push_new(L, self->len);
+  _vec_hadamard_product_into(L, self, other, new);
+  return 1;
+}
+
+int vec_hadamard_product_into(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *other = luaL_checkudata(L, 2, vector_mt_name);
+  Vector *out;
+
+  if (lua_gettop(L) > 2) {
+    out = luaL_checkudata(L, 3, vector_mt_name);
+    _vec_check_same_len(L, self, out);
+  } else {
+    out = self;
+  }
+
+  _vec_hadamard_product_into(L, self, other, out);
+  return 1;
 }
 
 int vec_scale(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number scalar = luaL_checknumber(L, 2);
-  return _vec_scale(L, self, scalar);
+  Vector *new = _vec_push_new(L, self->len);
+  _vec_scale_into(L, self, scalar, new);
+  return 1;
+}
+
+int vec_scale_into(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  lua_Number scalar = luaL_checknumber(L, 2);
+  Vector *out;
+
+  if (lua_gettop(L) > 2) {
+    out = luaL_checkudata(L, 3, vector_mt_name);
+    _vec_check_same_len(L, self, out);
+  } else {
+    out = self;
+  }
+
+  _vec_scale_into(L, self, scalar, out);
+  return 1;
 }
 
 #define def_vec_op(name, expr)                                                 \
@@ -492,19 +535,64 @@ int vec_sub(lua_State *L) {
   }
 }
 
+int vec_mul_into(lua_State *L) {
+  Vector *out = NULL;
+  if (lua_gettop(L) > 2) {
+    out = luaL_checkudata(L, 3, vector_mt_name);
+  }
+
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+    }
+    _vec_scale_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+      lua_pushvalue(L, 1);
+    }
+    _vec_scale_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else {
+    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v1;
+      lua_pushvalue(L, 1);
+    } // else out on top of stack already
+    _vec_hadamard_product_into(L, v1, v2, out);
+    return 1;
+  }
+}
+
 int vec_mul(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
-    const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_scale(L, v, scalar);
+    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_scale_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
   } else if (lua_isnumber(L, 2)) {
     lua_Number scalar = lua_tonumber(L, 2);
-    const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    return _vec_scale(L, v, scalar);
+    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_scale_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
   } else {
-    const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
-    const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_hadamard_product(L, v1, v2);
+    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    Vector *out = _vec_push_new(L, v1->len);
+    _vec_hadamard_product_into(L, v1, v2, out);
+    return 1;
   }
 }
 
@@ -512,15 +600,23 @@ int vec_div(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
     const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_elmwise_div_scalar(L, scalar, v);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_elmwise_div_scalar_into(L, scalar, v, out);
+    return 1;
+
   } else if (lua_isnumber(L, 2)) {
     lua_Number scalar = lua_tonumber(L, 2);
     const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    return _vec_scale(L, v, 1 / scalar);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_scale_reciproc_into(L, v, scalar, out);
+    return 1;
+
   } else {
     const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
     const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_elmwise_div(L, v1, v2);
+    Vector *out = _vec_push_new(L, v1->len);
+    _vec_elmwise_div_into(L, v1, v2, out);
+    return 1;
   }
 }
 
@@ -577,7 +673,7 @@ static const struct luaL_Reg functions[] = {
   {"sub", &vec_sub},
   {"sub_into", &vec_sub_into},
   {"mul", &vec_mul},
-  /* {"mul_into", &vec_mul_into}, */
+  {"mul_into", &vec_mul_into},
   {"div", &vec_div},
   /* {"div_into", &vec_div_into}, */
   {"pow", &vec_pow},
@@ -589,7 +685,9 @@ static const struct luaL_Reg functions[] = {
   {"iter", &vec_iter},
   {"psy", &vec_psy},
   {"scale", &vec_scale},
+  {"scale_into", &vec_scale_into},
   {"hadamard", &vec_hadamard_product},
+  {"hadamard_into", &vec_hadamard_product},
 
   {"sq", &vec_sq},
   {"sq_into", &vec_sq_into},
