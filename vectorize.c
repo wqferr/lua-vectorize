@@ -379,6 +379,19 @@ int vec_hadamard_product(lua_State *L) {
   return 1;
 }
 
+int vec_inner(lua_State *L) {
+  Vector *a = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *b = luaL_checkudata(L, 2, vector_mt_name);
+  lua_Number total = 0;
+  _vec_check_same_len(L, a, b);
+
+  for (int i = 0; i < a->len; i++) {
+    total += a->values[i] * b->values[i];
+  }
+  lua_pushnumber(L, total);
+  return 1;
+}
+
 int vec_scale_into(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number scalar = luaL_checknumber(L, 2);
@@ -852,6 +865,7 @@ static const struct luaL_Reg functions[] = {
   {"scale_into", &vec_scale_into},
   {"hadamard", &vec_hadamard_product},
   {"hadamard_into", &vec_hadamard_product},
+  {"inner", &vec_inner},
 
   {"sq", &vec_sq},
   {"sq_into", &vec_sq_into},
