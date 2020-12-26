@@ -277,175 +277,49 @@ int vec_scale(lua_State *L) {
   return _vec_scale(L, self, scalar);
 }
 
-int vec_sq(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = self->values[i] * self->values[i];
-  }
-  return 1;
-}
 
-int vec_sqrt(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = sqrt(self->values[i]);
-  }
-  return 1;
-}
+#define def_vec_op(name, expr) \
+int vec_ ## name ## _into(lua_State *L) {\
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);\
+  Vector *out = luaL_checkudata(L, 2, vector_mt_name);\
+  _vec_check_same_len(L, self, out);\
+  for (int i = 0; i < self->len; i++) {\
+    out->values[i] = ( expr ) ;\
+  }\
+  return 0;\
+}\
+\
+int vec_ ## name (lua_State *L) {\
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);\
+  Vector *out = _vec_push_new(L, self->len);\
+  for (int i = 0; i < out->len; i++) {\
+    out->values[i] = ( expr ) ;\
+  }\
+  return 1;\
+}\
 
-int vec_cb(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = self->values[i] * self->values[i] * self->values[i];
-  }
-  return 1;
-}
+#define def_vec_op_func(fname) def_vec_op(fname, fname(self->values[i]))
 
-int vec_cbrt(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = cbrt(self->values[i]);
-  }
-  return 1;
-}
-int vec_exp(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = exp(self->values[i]);
-  }
-  return 1;
-}
+def_vec_op(sq, self->values[i] * self->values[i]);
+def_vec_op(sqrt, self->values[i] * self->values[i]);
+def_vec_op(cb, self->values[i] * self->values[i] * self->values[i]);
+def_vec_op(cbrt, self->values[i] * self->values[i] * self->values[i]);
+def_vec_op(ln, log(self->values[i]));
+def_vec_op(ln1p, log(1 + self->values[i]));
+def_vec_op_func(exp);
 
-int vec_ln(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = log(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_ln1p(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = log(1 + self->values[i]);
-  }
-  return 1;
-}
-
-int vec_sin(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = sin(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_cos(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = cos(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_tan(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = tan(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_sinh(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = sinh(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_cosh(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = cosh(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_tanh(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = tanh(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_asin(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = asin(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_acos(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = acos(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_atan(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = atan(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_asinh(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = asinh(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_acosh(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = acosh(self->values[i]);
-  }
-  return 1;
-}
-
-int vec_atanh(lua_State *L) {
-  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
-  Vector *new = _vec_push_new(L, self->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = atanh(self->values[i]);
-  }
-  return 1;
-}
+def_vec_op_func(sin);
+def_vec_op_func(sinh);
+def_vec_op_func(asin);
+def_vec_op_func(asinh);
+def_vec_op_func(cos);
+def_vec_op_func(cosh);
+def_vec_op_func(acos);
+def_vec_op_func(acosh);
+def_vec_op_func(tan);
+def_vec_op_func(tanh);
+def_vec_op_func(atan);
+def_vec_op_func(atanh);
 
 int _vec_iter_closure(lua_State *L) {
   Vector *v = lua_touserdata(L, 1); // immutable iter state
@@ -584,32 +458,61 @@ static const struct luaL_Reg functions[] = {
   {"div", &vec__div},
   {"pow", &vec__pow},
   {"neg", &vec__unm},
-  {"sq", &vec_sq},
-  {"square", &vec_sq},
-  {"sqrt", &vec_sqrt},
-  {"cb", &vec_cb},
-  {"cube", &vec_cb},
-  {"cbrt", &vec_cbrt},
-  {"exp", &vec_exp},
-  {"ln", &vec_ln},
-  {"ln1p", &vec_ln1p},
-  {"sin", &vec_sin},
-  {"cos", &vec_cos},
-  {"tan", &vec_tan},
-  {"sinh", &vec_sinh},
-  {"cosh", &vec_cosh},
-  {"tanh", &vec_tanh},
-  {"asin", &vec_asin},
-  {"acos", &vec_acos},
-  {"atan", &vec_atan},
-  {"asinh", &vec_asinh},
-  {"acosh", &vec_acosh},
-  {"atanh", &vec_atanh},
+
   {"at", &vec_at},
   {"iter", &vec_iter},
   {"psy", &vec_psy},
   {"scale", &vec_scale},
   {"hadamard", &vec_hadamard_product},
+
+  {"sq", &vec_sq},
+  {"sq_into", &vec_sq_into},
+  {"square", &vec_sq},
+  {"square_into", &vec_sq_into},
+  {"cb", &vec_cb},
+  {"cb_into", &vec_cb_into},
+  {"cube", &vec_cb},
+  {"cube_into", &vec_cb_into},
+
+  {"sqrt", &vec_sqrt},
+  {"sqrt_into", &vec_sqrt_into},
+  {"cbrt", &vec_cbrt},
+  {"cbrt_into", &vec_cbrt_into},
+
+  {"exp", &vec_exp},
+  {"exp_into", &vec_exp_into},
+  {"ln", &vec_ln},
+  {"ln_into", &vec_ln_into},
+  {"ln1p", &vec_ln1p},
+  {"ln1p_into", &vec_ln1p_into},
+
+  {"sin", &vec_sin},
+  {"sin_into", &vec_sin_into},
+  {"sinh", &vec_sinh},
+  {"sinh_into", &vec_sinh_into},
+  {"asin", &vec_asin},
+  {"asin_into", &vec_asin_into},
+  {"asinh", &vec_asinh},
+  {"asinh_into", &vec_asinh_into},
+
+  {"cos", &vec_cos},
+  {"cos_into", &vec_cos_into},
+  {"cosh", &vec_cosh},
+  {"cosh_into", &vec_cosh_into},
+  {"acos", &vec_acos},
+  {"acos_into", &vec_acos_into},
+  {"acosh", &vec_acosh},
+  {"acosh_into", &vec_acosh_into},
+
+  {"tan", &vec_tan},
+  {"tan_into", &vec_tan_into},
+  {"tanh", &vec_tanh},
+  {"tanh_into", &vec_tanh_into},
+  {"atan", &vec_atan},
+  {"atan_into", &vec_atan_into},
+  {"atanh", &vec_atanh},
+  {"atanh_into", &vec_atanh_into},
+
   {NULL, NULL}};
 
 void create_lib_metatable(lua_State *L) {
