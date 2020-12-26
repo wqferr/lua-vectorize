@@ -126,6 +126,15 @@ int vec_dup(lua_State *L) {
   return 1;
 }
 
+int vec_dup_into(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = luaL_checkudata(L, 2, vector_mt_name);
+  _vec_check_same_len(L, self, new);
+
+  memcpy(new->values, self->values, self->len * sizeof(lua_Number));
+  return 1;
+}
+
 int vec_at(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
   int idx = lua_tointeger(L, 2) - 1;
@@ -288,12 +297,18 @@ int vec_scale(lua_State *L) {
 #define def_vec_op(name, expr)                                                 \
   int vec_##name##_into(lua_State *L) {                                        \
     Vector *self = luaL_checkudata(L, 1, vector_mt_name);                      \
-    Vector *out = luaL_checkudata(L, 2, vector_mt_name);                       \
-    _vec_check_same_len(L, self, out);                                         \
+    Vector *out;                                                               \
+    if (lua_gettop(L) > 1) {                                                   \
+      out = luaL_checkudata(L, 2, vector_mt_name);                             \
+      _vec_check_same_len(L, self, out);                                       \
+    } else {                                                                   \
+      out = self;                                                              \
+    }                                                                          \
+                                                                               \
     for (int i = 0; i < self->len; i++) {                                      \
       out->values[i] = (expr);                                                 \
     }                                                                          \
-    return 0;                                                                  \
+    return 1; /* out is already on the top of the stack */                     \
   }                                                                            \
                                                                                \
   int vec_##name(lua_State *L) {                                               \
@@ -460,6 +475,7 @@ static const struct luaL_Reg functions[] = {
   {"basis", &vec_basis},
   {"linspace", &vec_linspace},
   {"dup", &vec_dup},
+  {"dup_into", &vec_dup_into},
 
   {"add", &vec__add},
   {"sub", &vec__sub},
