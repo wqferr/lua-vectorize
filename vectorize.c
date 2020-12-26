@@ -596,6 +596,43 @@ int vec_mul(lua_State *L) {
   }
 }
 
+int vec_div_into(lua_State *L) {
+  Vector *out = NULL;
+  if (lua_gettop(L) > 2) {
+    out = luaL_checkudata(L, 3, vector_mt_name);
+  }
+
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+    }
+    _vec_elmwise_div_scalar_into(L, scalar, v, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+      lua_pushvalue(L, 1);
+    }
+    _vec_scale_reciproc_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else {
+    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v1;
+      lua_pushvalue(L, 1);
+    } // else out on top of stack already
+    _vec_elmwise_div_into(L, v1, v2, out);
+    return 1;
+  }
+}
+
 int vec_div(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
@@ -675,7 +712,7 @@ static const struct luaL_Reg functions[] = {
   {"mul", &vec_mul},
   {"mul_into", &vec_mul_into},
   {"div", &vec_div},
-  /* {"div_into", &vec_div_into}, */
+  {"div_into", &vec_div_into},
   {"pow", &vec_pow},
   /* {"pow_into", &vec_pow_into}, */
   {"neg", &vec_neg},
