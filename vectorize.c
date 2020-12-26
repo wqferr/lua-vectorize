@@ -144,6 +144,17 @@ int vec_at(lua_State *L) {
   return 1;
 }
 
+int vec_sum(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  lua_Number total = 0;
+  for (int i = 0; i < self->len; i++) {
+    total += self->values[i];
+  }
+
+  lua_pushnumber(L, total);
+  return 1;
+}
+
 int vec__index(lua_State *L) {
   if (lua_isinteger(L, 2)) {
     // integer indexing
@@ -794,6 +805,7 @@ static const struct luaL_Reg functions[] = {
   {"reciproc_into", &vec_reciproc_into},
 
   {"at", &vec_at},
+  {"sum", &vec_sum},
   {"iter", &vec_iter},
   {"psy", &vec_psy},
   {"psy_into", &vec_psy_into},
