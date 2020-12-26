@@ -365,6 +365,14 @@ int vec__tostring(lua_State *L) {
 
     lua_pushstring(L, ", ");
     nterms++;
+
+    // safety break so it doesnt crash Lua when trying to print a very long vector
+    if (nterms > 10) {
+      nterms += 2;
+      lua_pushstring(L, "...");
+      lua_pushstring(L, "");
+      break;
+    }
   }
 
   // Replace last separator with a closing bracket
@@ -972,6 +980,8 @@ static const struct luaL_Reg functions[] = {
   {"linspace", &vec_linspace},
   {"dup", &vec_dup},
   {"dup_", &vec_dup_into},
+  {"save", &vec_save},
+  {"load", &vec_load},
 
   {"add", &vec_add},
   {"add_", &vec_add_into},

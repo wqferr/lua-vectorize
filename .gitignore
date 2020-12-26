@@ -22,6 +22,9 @@
 *.la
 *.lo
 
+# Data files
+*.luavec
+
 # Shared objects (inc. Windows DLLs)
 *.dll
 *.so
