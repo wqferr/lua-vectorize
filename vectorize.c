@@ -9,12 +9,15 @@
 const char vector_mt_name[] = "vector";
 const char vector_lib_mt_name[] = "liblua-vectorize";
 
+const uint8_t intsize = sizeof(lua_Integer);
+const uint8_t numbersize = sizeof(lua_Number);
+
 typedef struct Vector {
   lua_Number *values;
-  int len;
+  lua_Integer len;
 } Vector;
 
-void _vec_check_oob(lua_State *L, int idx, int len) {
+void _vec_check_oob(lua_State *L, int idx, lua_Integer len) {
   // idx is the 0-based index!
   if (idx < 0) {
     luaL_error(L, "Expected positive integer, got %d", idx + 1);
@@ -32,7 +35,7 @@ void _vec_check_same_len(lua_State *L, const Vector *x, const Vector *y) {
 }
 
 int vec_new(lua_State *L) {
-  int len;
+  lua_Integer len;
   lua_Number *values;
   Vector *v;
 
@@ -54,7 +57,7 @@ int vec_new(lua_State *L) {
   return 1;
 }
 
-Vector *_vec_push_new(lua_State *L, int len) {
+Vector *_vec_push_new(lua_State *L, lua_Integer len) {
   lua_pushcfunction(L, &vec_new);
   lua_pushinteger(L, len);
   lua_call(L, 1, 1);
@@ -63,9 +66,9 @@ Vector *_vec_push_new(lua_State *L, int len) {
 }
 
 int vec_from(lua_State *L) {
-  int len = luaL_len(L, 1);
+  lua_Integer len = luaL_len(L, 1);
   Vector *v = _vec_push_new(L, len);
-  for (int i = 1; i <= len; i++) {
+  for (lua_Integer i = 1; i <= len; i++) {
     lua_pushinteger(L, i);
     lua_gettable(L, 1);
     if (!lua_isnumber(L, -1)) {
@@ -91,7 +94,7 @@ int vec_linspace(lua_State *L) {
 
   Vector *new = _vec_push_new(L, len);
 
-  for (int i = 0; i < len; i++) {
+  for (lua_Integer i = 0; i < len; i++) {
     new->values[i] = start + ((i * step_num) / step_den);
   }
 
@@ -101,21 +104,115 @@ int vec_linspace(lua_State *L) {
 int vec_ones(lua_State *L) {
   vec_new(L);
   Vector *new = lua_touserdata(L, -1);
-  for (int i = 0; i < new->len; i++) {
+  for (lua_Integer i = 0; i < new->len; i++) {
     new->values[i] = 1;
   }
   return 1;
 }
 
 int vec_basis(lua_State *L) {
-  int len = luaL_checkinteger(L, 1);
-  int onepos = luaL_checkinteger(L, 2) - 1;
+  lua_Integer len = luaL_checkinteger(L, 1);
+  lua_Integer onepos = luaL_checkinteger(L, 2) - 1;
   lua_pop(L, 2);
   _vec_check_oob(L, onepos, len);
 
   Vector *new = _vec_push_new(L, len);
   new->values[onepos] = 1;
 
+  return 1;
+}
+
+int vec_save(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  const char *filename = luaL_checkstring(L, 2);
+  FILE *fp = fopen(filename, "wb+");
+
+  if (fp == NULL) {
+    luaL_error(L, "Could not open file %s for writing", filename);
+  }
+
+  // save architecture info (size of a lua integer)
+  fwrite(&intsize, sizeof(intsize), 1, fp);
+
+  // save lua compiled info (size of lua number)
+  fwrite(&numbersize, sizeof(numbersize), 1, fp);
+
+  // save vector length
+  fwrite(&self->len, sizeof(self->len), 1, fp);
+
+  // save vector data
+  fwrite(self->values, sizeof(*self->values), self->len, fp);
+
+  fclose(fp);
+
+  return 0;
+}
+
+int vec_load(lua_State *L) {
+  const char *filename = luaL_checkstring(L, 1);
+  FILE *fp = fopen(filename, "rb");
+  if (fp == NULL) {
+    fclose(fp);
+    luaL_error(L, "Could not open file %s for reading", filename);
+  }
+
+  uint8_t load_intsize;
+  if (fread(&load_intsize, sizeof(load_intsize), 1, fp) == 0) {
+    fclose(fp);
+    luaL_error(
+      L, "Corrupted file: could not read architecture information (int size)");
+  }
+  if (load_intsize != intsize) {
+    fclose(fp);
+    luaL_error(
+      L,
+      "Incompatible architectures: vector was saved in a machine with int size "
+      "%d, this machine has intsize %d",
+      load_intsize,
+      intsize);
+  }
+  uint8_t load_numbersize;
+  if (fread(&load_numbersize, sizeof(load_numbersize), 1, fp) == 0) {
+    fclose(fp);
+    luaL_error(
+      L,
+      "Corrupted file: could not read architecture information (lua_Number "
+      "size)");
+  }
+  if (load_numbersize != numbersize) {
+    fclose(fp);
+    luaL_error(
+      L,
+      "Incompatible architectures: vector was saved in a machine with "
+      "lua_Number size "
+      "%d, this machine has lua_Number size %d",
+      load_numbersize,
+      numbersize);
+  }
+
+  // By this point, we know that the architectures match
+
+  lua_Integer len;
+  if (fread(&len, sizeof(len), 1, fp) == 0) {
+    fclose(fp);
+    luaL_error(L, "Could not read vector length from file");
+  }
+  Vector *new = _vec_push_new(L, len);
+  if (((lua_Integer)fread(new->values, numbersize, len, fp)) < len) {
+    fclose(fp);
+    luaL_error(L, "Could not read whole vector (was the file truncated?)");
+  }
+
+  char dummy;
+  if (fread(&dummy, sizeof(dummy), 1, fp) != 0) {
+    fclose(fp);
+    luaL_error(
+      L,
+      "File has additional data after end of vector. Is this really a vector "
+      "file?");
+  }
+
+  fclose(fp);
   return 1;
 }
 
@@ -137,7 +234,7 @@ int vec_dup_into(lua_State *L) {
 
 int vec_at(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-  int idx = lua_tointeger(L, 2) - 1;
+  lua_Integer idx = lua_tointeger(L, 2) - 1;
   _vec_check_oob(L, idx, v->len);
   lua_pushnumber(L, v->values[idx]);
 
@@ -147,7 +244,7 @@ int vec_at(lua_State *L) {
 int vec_sum(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number total = 0;
-  for (int i = 0; i < self->len; i++) {
+  for (lua_Integer i = 0; i < self->len; i++) {
     total += self->values[i];
   }
 
@@ -158,7 +255,7 @@ int vec_sum(lua_State *L) {
 int vec_norm(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number total = 0;
-  for (int i = 0; i < self->len; i++) {
+  for (lua_Integer i = 0; i < self->len; i++) {
     total += self->values[i] * self->values[i];
   }
 
@@ -169,7 +266,7 @@ int vec_norm(lua_State *L) {
 int vec_norm2(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number total = 0;
-  for (int i = 0; i < self->len; i++) {
+  for (lua_Integer i = 0; i < self->len; i++) {
     total += self->values[i] * self->values[i];
   }
 
@@ -190,11 +287,11 @@ int vec_normalize_into(lua_State *L) {
     lua_pushvalue(L, 1);
   }
 
-  for (int i = 0; i < self->len; i++) {
+  for (lua_Integer i = 0; i < self->len; i++) {
     norm += self->values[i] * self->values[i];
   }
   norm = sqrt(norm);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = self->values[i] / norm;
   }
 
@@ -205,11 +302,11 @@ int vec_normalize(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   Vector *new = _vec_push_new(L, self->len);
   lua_Number norm = 0;
-  for (int i = 0; i < self->len; i++) {
+  for (lua_Integer i = 0; i < self->len; i++) {
     norm += self->values[i] * self->values[i];
   }
   norm = sqrt(norm);
-  for (int i = 0; i < new->len; i++) {
+  for (lua_Integer i = 0; i < new->len; i++) {
     new->values[i] = self->values[i] / norm;
   }
   return 1;
@@ -221,7 +318,7 @@ int vec_trapz(lua_State *L) {
   lua_Number total = 0;
   _vec_check_same_len(L, y, x);
 
-  for (int i = 1; i < y->len; i++) {
+  for (lua_Integer i = 1; i < y->len; i++) {
     lua_Number dx = (x->values[i] - x->values[i - 1]);
     total += ((y->values[i] + y->values[i - 1]) * dx) / 2;
   }
@@ -244,7 +341,7 @@ int vec__index(lua_State *L) {
 
 int vec__newindex(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-  int idx = luaL_checkinteger(L, 2) - 1;
+  lua_Integer idx = luaL_checkinteger(L, 2) - 1;
   _vec_check_oob(L, idx, v->len);
 
   v->values[idx] = luaL_checknumber(L, 3);
@@ -253,12 +350,12 @@ int vec__newindex(lua_State *L) {
 
 int vec__tostring(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-  int nterms = 0;
+  lua_Integer nterms = 0;
 
   lua_pushstring(L, "[");
   nterms++;
 
-  for (int i = 0; i < v->len; i++) {
+  for (lua_Integer i = 0; i < v->len; i++) {
     lua_pushnumber(L, v->values[i]);
     nterms++;
 
@@ -287,7 +384,7 @@ int vec__len(lua_State *L) {
 void _vec_broadcast_add_into(
   lua_State *L, Vector *v, lua_Number scalar, Vector *out) {
   _vec_check_same_len(L, v, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = v->values[i] + scalar;
   }
 }
@@ -295,7 +392,7 @@ void _vec_broadcast_add_into(
 void _vec_broadcast_pow_rev_into(
   lua_State *L, lua_Number base, const Vector *v, Vector *out) {
   _vec_check_same_len(L, v, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = pow(base, v->values[i]);
   }
 }
@@ -303,7 +400,7 @@ void _vec_broadcast_pow_rev_into(
 void _vec_broadcast_pow_into(
   lua_State *L, const Vector *v, lua_Number e, Vector *out) {
   _vec_check_same_len(L, v, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = pow(v->values[i], e);
   }
 }
@@ -312,7 +409,7 @@ void _vec_pow_into(
   lua_State *L, const Vector *b, const Vector *e, Vector *out) {
   _vec_check_same_len(L, b, e);
   _vec_check_same_len(L, b, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = pow(b->values[i], e->values[i]);
   }
 }
@@ -321,7 +418,7 @@ void _vec_xpsy_into(
   lua_State *L, const Vector *x, lua_Number s, const Vector *y, Vector *out) {
   _vec_check_same_len(L, x, y);
   _vec_check_same_len(L, x, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = x->values[i] + s * y->values[i];
   }
 }
@@ -330,14 +427,14 @@ void _vec_hadamard_product_into(
   lua_State *L, const Vector *x, const Vector *y, Vector *out) {
   _vec_check_same_len(L, x, y);
   _vec_check_same_len(L, x, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = x->values[i] * y->values[i];
   }
 }
 
 void _vec_scale_into(lua_State *L, const Vector *v, lua_Number s, Vector *out) {
   _vec_check_same_len(L, v, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = v->values[i] * s;
   }
 }
@@ -345,7 +442,7 @@ void _vec_scale_into(lua_State *L, const Vector *v, lua_Number s, Vector *out) {
 void _vec_scale_reciproc_into(
   lua_State *L, const Vector *v, lua_Number s, Vector *out) {
   _vec_check_same_len(L, v, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = v->values[i] / s;
   }
 }
@@ -354,7 +451,7 @@ void _vec_elmwise_div_into(
   lua_State *L, const Vector *x, const Vector *y, Vector *out) {
   _vec_check_same_len(L, x, y);
   _vec_check_same_len(L, x, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = x->values[i] / y->values[i];
   }
 }
@@ -362,7 +459,7 @@ void _vec_elmwise_div_into(
 void _vec_elmwise_div_scalar_into(
   lua_State *L, lua_Number scalar, const Vector *x, Vector *out) {
   _vec_check_same_len(L, x, out);
-  for (int i = 0; i < out->len; i++) {
+  for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = scalar / x->values[i];
   }
 }
@@ -423,7 +520,7 @@ int vec_inner(lua_State *L) {
   lua_Number total = 0;
   _vec_check_same_len(L, a, b);
 
-  for (int i = 0; i < a->len; i++) {
+  for (lua_Integer i = 0; i < a->len; i++) {
     total += a->values[i] * b->values[i];
   }
   lua_pushnumber(L, total);
@@ -466,7 +563,7 @@ int vec_scale(lua_State *L) {
       out = self;                                                              \
     }                                                                          \
                                                                                \
-    for (int i = 0; i < self->len; i++) {                                      \
+    for (lua_Integer i = 0; i < self->len; i++) {                              \
       out->values[i] = (expr);                                                 \
     }                                                                          \
     return 1; /* out is already on the top of the stack */                     \
@@ -475,7 +572,7 @@ int vec_scale(lua_State *L) {
   int vec_##name(lua_State *L) {                                               \
     Vector *self = luaL_checkudata(L, 1, vector_mt_name);                      \
     Vector *out = _vec_push_new(L, self->len);                                 \
-    for (int i = 0; i < out->len; i++) {                                       \
+    for (lua_Integer i = 0; i < out->len; i++) {                               \
       out->values[i] = (expr);                                                 \
     }                                                                          \
     return 1;                                                                  \
@@ -966,7 +1063,8 @@ void create_lib_metatable(lua_State *L) {
 
 void create_vector_metatable(lua_State *L, int libstackidx) {
   luaL_newmetatable(L, vector_mt_name);
-  libstackidx--; // new value was pushed!
+  if (libstackidx < 0) // idx is relative to the top
+    libstackidx--;     // new value was pushed!
 
   lua_pushvalue(L, libstackidx);
   lua_setfield(L, -2, "__lib");
