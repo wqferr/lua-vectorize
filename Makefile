@@ -5,10 +5,12 @@ C_FLAGS= -Wall -Wextra
 LIBFLAG= -shared -fpic
 LIBS= -llua -lm
 
-.PHONY: clean
+.PHONY: all clean
 
-vectorize.so: vectorize.c
-	$(CC) -o vectorize.so $(LIBFLAG) $(C_FLAGS) $(CFLAGS) vectorize.c -I$(LUA_LIBDIR) $(LIBS)
+all: vectorize.so
 
 clean:
 	$(RM) vectorize.so
+
+vectorize.so: vectorize.c
+	$(CC) -o vectorize.so $(LIBFLAG) $(C_FLAGS) $(CFLAGS) vectorize.c -I$(LUA_LIBDIR) $(LIBS)

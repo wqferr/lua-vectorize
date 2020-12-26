@@ -3,11 +3,17 @@
 local vec = require "vectorize"
 local v = vec.linspace(-2, 2, 2001)
 
-local n = 10000
-local f1 = vec.ln1p
+local n = 100000
+local f1 = function(x)
+    return x:ln1p()
+end
 local args1 = {}
--- local f2 = vec.pow
--- local args2 = {0.5}
+
+local f2 = function(x)
+    return (x + 1):ln()
+end
+local args2 = {}
+
 local fraw = function(x)
     return math.log(1 + x)
 end
@@ -52,15 +58,15 @@ if fraw then
     traw = socket.gettime() - traw
 end
 
-print(n, "iterations")
+print(("%d iterations"):format(n))
 print()
-print("\t\ttotal time\tavg time")
+print("function\ttotal time\tavg time")
 if t1 then
-    print(("f1 time:\t%.2f\t\t%.6f"):format(t1, t1 / n))
+    print(("f1 time:\t%10.2f\t%8.6f"):format(t1, t1 / n))
 end
 if t2 then
-    print(("f2 time:\t%.2f\t\t%.6f"):format(t2, t2 / n))
+    print(("f2 time:\t%10.2f\t%8.6f"):format(t2, t2 / n))
 end
 if traw then
-    print(("raw time:\t%.2f\t\t%.6f"):format(traw, traw / n))
+    print(("raw time:\t%10.2f\t%8.6f"):format(traw, traw / n))
 end
