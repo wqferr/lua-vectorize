@@ -207,21 +207,24 @@ void _vec_broadcast_add_into(
   }
 }
 
-void _vec_broadcast_pow_into(lua_State *L, const Vector *v, lua_Number e, Vector *out) {
+void _vec_broadcast_pow_into(
+  lua_State *L, const Vector *v, lua_Number e, Vector *out) {
   _vec_check_same_len(L, v, out);
   for (int i = 0; i < out->len; i++) {
     out->values[i] = pow(v->values[i], e);
   }
 }
 
-void _vec_broadcast_pow_rev_into(lua_State *L, lua_Number base, const Vector *v, Vector *out) {
+void _vec_broadcast_pow_rev_into(
+  lua_State *L, lua_Number base, const Vector *v, Vector *out) {
   _vec_check_same_len(L, v, out);
   for (int i = 0; i < out->len; i++) {
     out->values[i] = pow(base, v->values[i]);
   }
 }
 
-void _vec_pow_into(lua_State *L, const Vector *b, const Vector *e, Vector *out) {
+void _vec_pow_into(
+  lua_State *L, const Vector *b, const Vector *e, Vector *out) {
   _vec_check_same_len(L, b, e);
   _vec_check_same_len(L, b, out);
   for (int i = 0; i < out->len; i++) {
@@ -309,6 +312,7 @@ int vec_hadamard_product_into(lua_State *L) {
     _vec_check_same_len(L, self, out);
   } else {
     out = self;
+    lua_pushvalue(L, 1);
   }
 
   _vec_hadamard_product_into(L, self, other, out);
@@ -333,6 +337,7 @@ int vec_scale_into(lua_State *L) {
     _vec_check_same_len(L, self, out);
   } else {
     out = self;
+    lua_pushvalue(L, 1);
   }
 
   _vec_scale_into(L, self, scalar, out);
@@ -723,6 +728,18 @@ int vec_neg(lua_State *L) {
   return 1;
 }
 
+int vec_neg_into(lua_State *L) {
+  int nargs = lua_gettop(L);
+  lua_pushcfunction(L, &vec_scale_into);
+  lua_pushvalue(L, 1);
+  lua_pushnumber(L, -1);
+  if (nargs == 2) {
+    lua_pushvalue(L, 2);
+  }
+  lua_call(L, nargs + 1, 1);
+  return 1;
+}
+
 int vec__gc(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
   free(v->values);
@@ -758,7 +775,7 @@ static const struct luaL_Reg functions[] = {
   {"pow", &vec_pow},
   {"pow_into", &vec_pow_into},
   {"neg", &vec_neg},
-  /* {"neg_into", &vec_neg_into}, */
+  {"neg_into", &vec_neg_into},
 
   {"at", &vec_at},
   {"iter", &vec_iter},
