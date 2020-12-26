@@ -15,6 +15,7 @@ local argsraw = {}
 
 -- BENCHMARK PER SE
 
+pcall(require, "luarocks.require")
 local socket = require "socket" -- just for timing
 
 local t1, t2, traw
