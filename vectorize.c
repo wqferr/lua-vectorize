@@ -207,29 +207,26 @@ void _vec_broadcast_add_into(
   }
 }
 
-int _vec_broadcast_pow(lua_State *L, const Vector *v, lua_Number e) {
-  Vector *new = _vec_push_new(L, v->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = pow(v->values[i], e);
+void _vec_broadcast_pow_into(lua_State *L, const Vector *v, lua_Number e, Vector *out) {
+  _vec_check_same_len(L, v, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = pow(v->values[i], e);
   }
-  return 1;
 }
 
-int _vec_broadcast_pow_rev(lua_State *L, lua_Number base, const Vector *v) {
-  Vector *new = _vec_push_new(L, v->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = pow(base, v->values[i]);
+void _vec_broadcast_pow_rev_into(lua_State *L, lua_Number base, const Vector *v, Vector *out) {
+  _vec_check_same_len(L, v, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = pow(base, v->values[i]);
   }
-  return 1;
 }
 
-int _vec_pow(lua_State *L, const Vector *b, const Vector *e) {
+void _vec_pow_into(lua_State *L, const Vector *b, const Vector *e, Vector *out) {
   _vec_check_same_len(L, b, e);
-  Vector *new = _vec_push_new(L, b->len);
-  for (int i = 0; i < new->len; i++) {
-    new->values[i] = pow(b->values[i], e->values[i]);
+  _vec_check_same_len(L, b, out);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = pow(b->values[i], e->values[i]);
   }
-  return 1;
 }
 
 void _vec_xpsy_into(
@@ -657,19 +654,64 @@ int vec_div(lua_State *L) {
   }
 }
 
+int vec_pow_into(lua_State *L) {
+  Vector *out = NULL;
+  if (lua_gettop(L) > 2) {
+    out = luaL_checkudata(L, 3, vector_mt_name);
+  }
+
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+    }
+    _vec_broadcast_pow_rev_into(L, scalar, v, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    if (out == NULL) {
+      out = v;
+      lua_pushvalue(L, 1);
+    }
+    _vec_broadcast_pow_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else {
+    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    if (out == NULL) {
+      out = v1;
+      lua_pushvalue(L, 1);
+    } // else out on top of stack already
+    _vec_pow_into(L, v1, v2, out);
+    return 1;
+  }
+}
+
 int vec_pow(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
     const Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_broadcast_pow_rev(L, scalar, v);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_broadcast_pow_rev_into(L, scalar, v, out);
+    return 1;
+
   } else if (lua_isnumber(L, 2)) {
     lua_Number scalar = lua_tonumber(L, 2);
     const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    return _vec_broadcast_pow(L, v, scalar);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_broadcast_pow_into(L, v, scalar, out);
+    return 1;
+
   } else {
     const Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
     const Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    return _vec_pow(L, v1, v2);
+    Vector *out = _vec_push_new(L, v1->len);
+    _vec_pow_into(L, v1, v2, out);
+    return 1;
   }
 }
 
@@ -714,7 +756,7 @@ static const struct luaL_Reg functions[] = {
   {"div", &vec_div},
   {"div_into", &vec_div_into},
   {"pow", &vec_pow},
-  /* {"pow_into", &vec_pow_into}, */
+  {"pow_into", &vec_pow_into},
   {"neg", &vec_neg},
   /* {"neg_into", &vec_neg_into}, */
 

@@ -1,19 +1,15 @@
 vec = require "vectorize"
 
 a = vec{1, 2, 3}
-b = vec{-1, 1, -1}
-print(a * b)
-print(b * a)
-print(a:hadamard_into(b))
-print(a:div(3))
-print(a:div(3))
-print(a:mul_into(3))
-print(a:mul_into(3))
-print(a:mul_into(3))
-print(a:mul_into(3))
-print(a:div_into(3))
-print(a:div_into(3))
-print(a:div_into(3))
-print(a:div_into(3))
-print(a:div_into(3))
-print(a:div_into(3))
+b = vec{-1, 1, -2}
+
+print(a^b)
+print(a:pow_into(b))
+print(a:pow_into(b))
+print(a:pow_into(b))
+print(a:pow_into(b))
+b:pow_into(-1)
+print(a:pow_into(b))
+print(a:pow_into(b))
+print(a:pow_into(b))
+print(a:pow_into(b))
