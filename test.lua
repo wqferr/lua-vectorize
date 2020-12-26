@@ -1,6 +1,5 @@
 local vec = require "vectorize"
 
-local t = vec.linspace(0, math.pi, 1000) + math.pi
-local s = t:sin()
-
-print(("%.2f"):format(s:trapz(t)))
+local a = vec {1, -3, 2}
+local a_ = a:normalize()
+print(a_, a_:norm2())

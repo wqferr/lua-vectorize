@@ -177,6 +177,44 @@ int vec_norm2(lua_State *L) {
   return 1;
 }
 
+int vec_normalize_into(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  lua_Number norm = 0;
+  Vector *out;
+
+  if (lua_gettop(L) > 1) {
+    out = luaL_checkudata(L, 2, vector_mt_name);
+    _vec_check_same_len(L, self, out);
+  } else {
+    out = self;
+    lua_pushvalue(L, 1);
+  }
+
+  for (int i = 0; i < self->len; i++) {
+    norm += self->values[i] * self->values[i];
+  }
+  norm = sqrt(norm);
+  for (int i = 0; i < out->len; i++) {
+    out->values[i] = self->values[i] / norm;
+  }
+
+  return 1;
+}
+
+int vec_normalize(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *new = _vec_push_new(L, self->len);
+  lua_Number norm = 0;
+  for (int i = 0; i < self->len; i++) {
+    norm += self->values[i] * self->values[i];
+  }
+  norm = sqrt(norm);
+  for (int i = 0; i < new->len; i++) {
+    new->values[i] = self->values[i] / norm;
+  }
+  return 1;
+}
+
 int vec_trapz(lua_State *L) {
   Vector *y = luaL_checkudata(L, 1, vector_mt_name);
   Vector *x = luaL_checkudata(L, 2, vector_mt_name);
@@ -855,8 +893,10 @@ static const struct luaL_Reg functions[] = {
 
   {"at", &vec_at},
   {"sum", &vec_sum},
-  {"norm", &vec_norm},
   {"norm2", &vec_norm2},
+  {"norm", &vec_norm},
+  {"normalize", &vec_normalize},
+  {"normalize_into", &vec_normalize_into},
   {"trapz", &vec_trapz},
   {"iter", &vec_iter},
   {"psy", &vec_psy},
