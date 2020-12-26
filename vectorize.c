@@ -177,6 +177,20 @@ int vec_norm2(lua_State *L) {
   return 1;
 }
 
+int vec_trapz(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  lua_Number interval_start = luaL_optnumber(L, 2, 0);
+  lua_Number interval_end = luaL_optnumber(L, 3, interval_start + 1);
+  lua_Number total = 0;
+
+  lua_Number dx = (interval_end - interval_start) / (self->len - 1);
+  for (int i = 1; i < self->len; i++) {
+    total += ((self->values[i] + self->values[i - 1]) * dx) / 2;
+  }
+  lua_pushnumber(L, total);
+  return 1;
+}
+
 int vec__index(lua_State *L) {
   if (lua_isinteger(L, 2)) {
     // integer indexing
@@ -457,8 +471,8 @@ int vec_iter(lua_State *L) {
   luaL_checkudata(L, 1, vector_mt_name);
 
   lua_pushcfunction(L, &_vec_iter_closure); // iter function
-  lua_pushvalue(L, 1); // immutable state (vector)
-  lua_pushinteger(L, 0); // mutable state (index)
+  lua_pushvalue(L, 1);                      // immutable state (vector)
+  lua_pushinteger(L, 0);                    // mutable state (index)
   return 3;
 }
 
@@ -830,6 +844,7 @@ static const struct luaL_Reg functions[] = {
   {"sum", &vec_sum},
   {"norm", &vec_norm},
   {"norm2", &vec_norm2},
+  {"trapz", &vec_trapz},
   {"iter", &vec_iter},
   {"psy", &vec_psy},
   {"psy_into", &vec_psy_into},
