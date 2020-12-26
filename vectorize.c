@@ -282,16 +282,30 @@ void _vec_elmwise_div_scalar_into(
   }
 }
 
+int vec_psy_into(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  lua_Number scalar = luaL_checknumber(L, 2);
+  Vector *other = luaL_checkudata(L, 3, vector_mt_name);
+  Vector *out;
+
+  _vec_check_same_len(L, self, other);
+  if (lua_gettop(L) > 3) {
+    out = luaL_checkudata(L, 4, vector_mt_name);
+  } else {
+    out = self;
+    lua_pushvalue(L, 1);
+  }
+  _vec_xpsy_into(L, self, scalar, other, out);
+  return 1;
+}
+
 int vec_psy(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number scalar = luaL_checknumber(L, 2);
   Vector *other = luaL_checkudata(L, 3, vector_mt_name);
-  // FIXME
-  (void)self;
-  (void)scalar;
-  (void)other;
-  return 0;
-  /* return _vec_xpsy(L, self, scalar, other); */
+  Vector *new = _vec_push_new(L, self->len);
+  _vec_xpsy_into(L, self, scalar, other, new);
+  return 1;
 }
 
 int vec_hadamard_product(lua_State *L) {
@@ -733,7 +747,7 @@ int vec_neg_into(lua_State *L) {
   lua_pushcfunction(L, &vec_scale_into);
   lua_pushvalue(L, 1);
   lua_pushnumber(L, -1);
-  if (nargs == 2) {
+  if (nargs > 1) {
     lua_pushvalue(L, 2);
   }
   lua_call(L, nargs + 1, 1);
@@ -780,6 +794,7 @@ static const struct luaL_Reg functions[] = {
   {"at", &vec_at},
   {"iter", &vec_iter},
   {"psy", &vec_psy},
+  {"psy_into", &vec_psy_into},
   {"scale", &vec_scale},
   {"scale_into", &vec_scale_into},
   {"hadamard", &vec_hadamard_product},
