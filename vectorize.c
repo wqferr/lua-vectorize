@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <lauxlib.h>
 #include <lua.h>
 #include <math.h>
@@ -128,20 +129,56 @@ int vec_save(lua_State *L) {
   FILE *fp = fopen(filename, "wb+");
 
   if (fp == NULL) {
-    luaL_error(L, "Could not open file %s for writing", filename);
+    luaL_error(L, "Could not open file %s for writing.", filename);
   }
 
   // save architecture info (size of a lua integer)
-  fwrite(&intsize, sizeof(intsize), 1, fp);
+  if (fwrite(&intsize, sizeof(intsize), 1, fp) == 0) {
+    fclose(fp);
+    luaL_error(
+      L,
+      "Could not write architecture information to file (lua_Integer size).\n"
+      "errno: %d\n"
+      "%s",
+      errno,
+      strerror(errno));
+  }
 
   // save lua compiled info (size of lua number)
-  fwrite(&numbersize, sizeof(numbersize), 1, fp);
+  if (fwrite(&numbersize, sizeof(numbersize), 1, fp) == 0) {
+    fclose(fp);
+    luaL_error(
+      L,
+      "Could not write architecture information to file (lua_Number size).\n"
+      "errno: %d\n"
+      "%s",
+      errno,
+      strerror(errno));
+  }
 
   // save vector length
-  fwrite(&self->len, sizeof(self->len), 1, fp);
+  if (fwrite(&self->len, sizeof(self->len), 1, fp) == 0) {
+    fclose(fp);
+    luaL_error(
+      L,
+      "Could not write vector length to file.\n"
+      "errno: %d\n"
+      "%s",
+      errno,
+      strerror(errno));
+  }
 
   // save vector data
-  fwrite(self->values, sizeof(*self->values), self->len, fp);
+  if (fwrite(self->values, sizeof(*self->values), self->len, fp) == 0) {
+    fclose(fp);
+    luaL_error(
+      L,
+      "Could not write whole vector contents to file.\n"
+      "errno: %d\n"
+      "%s",
+      errno,
+      strerror(errno));
+  }
 
   fclose(fp);
 
@@ -152,21 +189,28 @@ int vec_load(lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   FILE *fp = fopen(filename, "rb");
   if (fp == NULL) {
-    luaL_error(L, "Could not open file %s for reading", filename);
+    luaL_error(L, "Could not open file %s for reading.", filename);
   }
 
   uint8_t load_intsize;
   if (fread(&load_intsize, sizeof(load_intsize), 1, fp) == 0) {
     fclose(fp);
     luaL_error(
-      L, "Corrupted file: could not read architecture information (int size)");
+      L,
+      "Corrupted file: could not read architecture information (lua_Integer "
+      "size).\n"
+      "errno: %d\n"
+      "%s",
+      errno,
+      strerror(errno));
   }
   if (load_intsize != intsize) {
     fclose(fp);
     luaL_error(
       L,
-      "Incompatible architectures: vector was saved in a machine with int size "
-      "%d, this machine has intsize %d",
+      "Incompatible architectures: vector was saved in a machine with "
+      "lua_Integer size "
+      "%d, this machine has lua_Integer size %d.",
       load_intsize,
       intsize);
   }
@@ -176,7 +220,11 @@ int vec_load(lua_State *L) {
     luaL_error(
       L,
       "Corrupted file: could not read architecture information (lua_Number "
-      "size)");
+      "size).\n"
+      "errno: %d\n"
+      "%s",
+      errno,
+      strerror(errno));
   }
   if (load_numbersize != numbersize) {
     fclose(fp);
@@ -184,7 +232,7 @@ int vec_load(lua_State *L) {
       L,
       "Incompatible architectures: vector was saved in a machine with "
       "lua_Number size "
-      "%d, this machine has lua_Number size %d",
+      "%d, this machine has lua_Number size %d.",
       load_numbersize,
       numbersize);
   }
@@ -194,12 +242,25 @@ int vec_load(lua_State *L) {
   lua_Integer len;
   if (fread(&len, sizeof(len), 1, fp) == 0) {
     fclose(fp);
-    luaL_error(L, "Could not read vector length from file");
+    luaL_error(
+      L,
+      "Could not read vector length from file.\n"
+      "errno: %d\n"
+      "%s",
+      errno,
+      strerror(errno));
   }
+
   Vector *new = _vec_push_new(L, len);
   if (((lua_Integer)fread(new->values, numbersize, len, fp)) < len) {
     fclose(fp);
-    luaL_error(L, "Could not read whole vector (was the file truncated?)");
+    luaL_error(
+      L,
+      "Could not read whole vector. Was the file truncated?\n"
+      "errno: %d\n"
+      "%s",
+      errno,
+      strerror(errno));
   }
 
   char dummy;
