@@ -2,6 +2,9 @@ vec = require "vectorize"
 
 a = vec {1, 2, 3}
 print(a)
+for i, v in a:iter() do
+    print(i, v)
+end
 
 b = vec(3)
 b[1] = -1

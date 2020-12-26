@@ -447,6 +447,28 @@ int vec_atanh(lua_State *L) {
   return 1;
 }
 
+int _vec_iter_closure(lua_State *L) {
+  Vector *v = lua_touserdata(L, 1); // immutable iter state
+  lua_Integer cur_idx = lua_tointeger(L, 2); // mutable iter state
+
+  if (cur_idx >= v->len) {
+    return 0;
+  }
+
+  lua_pushinteger(L, cur_idx + 1); // mutable iter state
+  lua_pushnumber(L, v->values[cur_idx]); // extra values
+  return 2;
+}
+
+int vec_iter(lua_State *L) {
+  luaL_checkudata(L, 1, vector_mt_name);
+
+  lua_pushcfunction(L, &_vec_iter_closure);
+  lua_pushvalue(L, 1);
+  lua_pushvalue(L, 0);
+  return 3;
+}
+
 int vec__add(lua_State *L) {
   if (lua_isnumber(L, 1)) {
     lua_Number scalar = lua_tonumber(L, 1);
@@ -584,6 +606,7 @@ static const struct luaL_Reg functions[] = {
   {"acosh", &vec_acosh},
   {"atanh", &vec_atanh},
   {"at", &vec_at},
+  {"iter", &vec_iter},
   {"psy", &vec_psy},
   {"scale", &vec_scale},
   {"hadamard", &vec_hadamard_product},
