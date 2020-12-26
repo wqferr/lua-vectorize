@@ -407,6 +407,30 @@ int vec_add_into(lua_State *L) {
   }
 }
 
+int vec_add(lua_State *L) {
+  if (lua_isnumber(L, 1)) {
+    lua_Number scalar = lua_tonumber(L, 1);
+    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_broadcast_add_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else if (lua_isnumber(L, 2)) {
+    lua_Number scalar = lua_tonumber(L, 2);
+    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *out = _vec_push_new(L, v->len);
+    _vec_broadcast_add_into(L, v, scalar, out);
+    return 1; // out is on top of the stack no matter the branch path
+
+  } else {
+    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
+    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
+    Vector *out = _vec_push_new(L, v1->len);
+    _vec_xpsy_into(L, v1, 1, v2, out);
+    return 1;
+  }
+}
+
 /* int vec_sub(lua_State *L) { */
 /*   if (lua_isnumber(L, 1)) { */
 /*     lua_Number scalar = lua_tonumber(L, 1); */
@@ -503,7 +527,7 @@ static const struct luaL_Reg functions[] = {
   {"dup", &vec_dup},
   {"dup_into", &vec_dup_into},
 
-  /* {"add", &vec_add}, */
+  {"add", &vec_add},
   {"add_into", &vec_add_into},
   /* {"sub", &vec_sub}, */
   /* {"sub_into", &vec_sub_into}, */
@@ -598,8 +622,8 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
   lua_pushcfunction(L, &vec__len);
   lua_setfield(L, -2, "__len");
 
-  /* lua_pushcfunction(L, &vec_add); */
-  /* lua_setfield(L, -2, "__add"); */
+  lua_pushcfunction(L, &vec_add);
+  lua_setfield(L, -2, "__add");
 
   /* lua_pushcfunction(L, &vec_sub); */
   /* lua_setfield(L, -2, "__sub"); */
