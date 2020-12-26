@@ -152,7 +152,6 @@ int vec_load(lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   FILE *fp = fopen(filename, "rb");
   if (fp == NULL) {
-    fclose(fp);
     luaL_error(L, "Could not open file %s for reading", filename);
   }
 
@@ -366,7 +365,8 @@ int vec__tostring(lua_State *L) {
     lua_pushstring(L, ", ");
     nterms++;
 
-    // safety break so it doesnt crash Lua when trying to print a very long vector
+    // safety break so it doesnt crash Lua when trying to print a very long
+    // vector
     if (nterms > 10) {
       nterms += 2;
       lua_pushstring(L, "...");
