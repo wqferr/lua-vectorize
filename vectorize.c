@@ -391,6 +391,7 @@ def_vec_op(cb, self->values[i] * self->values[i] * self->values[i]);
 def_vec_op(cbrt, self->values[i] * self->values[i] * self->values[i]);
 def_vec_op(ln, log(self->values[i]));
 def_vec_op(ln1p, log(1 + self->values[i]));
+def_vec_op(reciproc, 1.0 / (self->values[i]));
 def_vec_op_func(exp);
 
 def_vec_op_func(sin);
@@ -789,6 +790,8 @@ static const struct luaL_Reg functions[] = {
   {"pow_into", &vec_pow_into},
   {"neg", &vec_neg},
   {"neg_into", &vec_neg_into},
+  {"reciproc", &vec_reciproc},
+  {"reciproc_into", &vec_reciproc_into},
 
   {"at", &vec_at},
   {"iter", &vec_iter},
