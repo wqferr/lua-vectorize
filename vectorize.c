@@ -1068,13 +1068,16 @@ static const struct luaL_Reg functions[] = {
   // TODO project
 
   {"at", &vec_at},
+  {"len", &vec__len},
+  {"iter", &vec_iter},
   {"sum", &vec_sum},
+
   {"norm2", &vec_norm2},
   {"norm", &vec_norm},
   {"normalize", &vec_normalize},
   {"normalize_", &vec_normalize_into},
+
   {"trapz", &vec_trapz},
-  {"iter", &vec_iter},
 
   {"sq", &vec_sq},
   {"sq_", &vec_sq_into},

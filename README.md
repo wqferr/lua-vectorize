@@ -264,3 +264,31 @@ Element-wise multiplication of `x` by `s`.
 
 Inner product between `x` and `y`. Also known as the scalar product between
 `x` and `y`. Errors if the two vectors don't have the same length.
+
+---
+
+### Direct Manipulation
+
+#### `vec.at(x: vector, i: number): number`
+
+Access element of `x` at position `i`. Errors if `i < 1` or `i > #x`.
+
+<br/>
+
+#### `vec.len(x: vector)`
+
+Return the number of elements in `x`. This function is called automatically
+by `#x`.
+
+<br/>
+
+#### `vec.iter(x: vector): (function(): number, number)`
+
+Iterate over all elements of `x`. Analogous to `ipairs` on a list-like
+table.
+
+<br/>
+
+#### `vec.sum(x: vector): number`
+
+Sum all elements of the vector.
