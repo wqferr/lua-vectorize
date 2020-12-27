@@ -27,20 +27,34 @@ local vec = require "vectorize"
 local v = vec {2, 0, 1}
 
 -- Functions can be accessed by the vec table
-print(vec.sum(v)) --> 3
+print(vec.sum(v)) --> 3.0
 -- Or directly as methods
-print(v:sum()) --> 3
+print(v:sum()) --> 3.0
 
 -- Operator broadcasting
-print(v + 2) --> [4, 2, 3]
-print(v ^ 0.5) --> [1.41, 0, 1]
+print(v + 2) --> [4.0, 2.0, 3.0]
+print(v ^ 0.5) --> [1.41, 0.0, 1.0]
 
 -- 50 equally-spaced values between 0 and pi
 local t = vec.linspace(0, math.pi, 50)
+print(t[1], t[50]) -- 0.0   3.14
+
 -- Evaluate sin at every point of t
 local s = vec.sin(t) -- or local s = t:sin()
 local area = vec.trapz(s, t) -- integrate using trapezoid rule
 print(area) -- 2.0
+
+-- Allows for in-place operations
+-- to avoid unnecessary allocs
+local x = vec.linspace(-2, 2, 1001)
+for _ = 1, 1000 do
+    x:sin_()
+    --   ^ extra _ at the end of the function name stores
+    --     result in the same variable, or you can define
+    --     a destination vector as an additional parameter
+    --     see FunctionReference.md for more information
+end
+print(x) -- sin(sin(sin(sin(...sin(x)))))
 ```
 
 ## Function Reference
