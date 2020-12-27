@@ -1058,6 +1058,14 @@ static const struct luaL_Reg functions[] = {
   {"neg_", &vec_neg_into},
   {"reciproc", &vec_reciproc},
   {"reciproc_", &vec_reciproc_into},
+  {"psy", &vec_psy},
+  {"psy_", &vec_psy_into},
+  {"hadamard", &vec_hadamard_product},
+  {"hadamard_", &vec_hadamard_product},
+  {"scale", &vec_scale},
+  {"scale_", &vec_scale_into},
+  {"inner", &vec_inner},
+  // TODO project
 
   {"at", &vec_at},
   {"sum", &vec_sum},
@@ -1067,13 +1075,6 @@ static const struct luaL_Reg functions[] = {
   {"normalize_", &vec_normalize_into},
   {"trapz", &vec_trapz},
   {"iter", &vec_iter},
-  {"psy", &vec_psy},
-  {"psy_", &vec_psy_into},
-  {"scale", &vec_scale},
-  {"scale_", &vec_scale_into},
-  {"hadamard", &vec_hadamard_product},
-  {"hadamard_", &vec_hadamard_product},
-  {"inner", &vec_inner},
 
   {"sq", &vec_sq},
   {"sq_", &vec_sq_into},

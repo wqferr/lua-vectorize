@@ -127,143 +127,172 @@ generate an error.
 
 ---
 
-#### `vec.add(a, b): vector (I)`
+#### `vec.add(x, y): vector (I)`
 
-This function is called automatically by `a + b`. Errors if the two vectors
+This function is called automatically by `x + y`. Errors if the two vectors
 don't have the same length.
 
 ---
 
-##### `a: vector, b: vector`
+##### `x: vector, y: vector`
 
-Element-wise addition of `a` and `b`.
-
----
-
-##### `a: vector, b: number`
-
-Add `b` to every element of `a`.
+Element-wise addition of `x` and `y`.
 
 ---
 
-##### `a: number, b: vector`
+##### `x: vector, y: number`
 
-Add `a` to every element of `b`.
-
----
-
-#### `vec.sub(a, b): vector (I)`
-
-This function is called automatically by `a - b`.
+Add `y` to every element of `x`.
 
 ---
 
-##### `a: vector, b: vector`
+##### `x: number, y: vector`
 
-Element-wise subtraction of `a` and `b`. Errors if the two vectors don't
+Add `x` to every element of `y`.
+
+---
+
+#### `vec.sub(x, y): vector (I)`
+
+This function is called automatically by `x - y`.
+
+---
+
+##### `x: vector, y: vector`
+
+Element-wise subtraction of `x` and `y`. Errors if the two vectors don't
 have the same length.
 
 ---
 
-##### `a: vector, b: number`
+##### `x: vector, y: number`
 
-Subtract `b` from every element of `a`.
-
----
-
-##### `a: number, b: vector`
-
-Subtract every element of `b` from `a`.
+Subtract `y` from every element of `x`.
 
 ---
 
-#### `vec.mul(a, b): vector (I)`
+##### `x: number, y: vector`
 
-This function is called automatically by `a * b`.
-
----
-
-##### `a: vector, b: vector`
-
-Element-wise multiplication of `a` and `b`. Equivalent to `vec.hadamard(a, b)`. Errors if the two vectors don't have the same length.
+Subtract every element of `y` from `x`.
 
 ---
 
-##### `a: vector, b: number`
+#### `vec.mul(x, y): vector (I)`
 
-Equivalent to `vec.scale(a, b)`.
-
----
-
-##### `a: number, b: vector`
-
-Equivalent to `vec.scale(b, a)`.
+This function is called automatically by `x * y`.
 
 ---
 
-#### `vec.div(a, b): vector (I)`
+##### `x: vector, y: vector`
 
-This function is called automatically by `a / b`.
+Element-wise multiplication of `x` and `y`. Equivalent to `vec.hadamard(x, y)`. Errors if the two vectors don't have the same length.
 
 ---
 
-##### `a: vector, b: vector`
+##### `x: vector, y: number`
 
-Element-wise division of `a` and `b`. Errors if the two vectors don't have
-the same length. Roughly equivalent to `a:hadamard(b:reciproc)`. Using this
+Equivalent to `vec.scale(x, y)`.
+
+---
+
+##### `x: number, y: vector`
+
+Equivalent to `vec.scale(y, x)`.
+
+---
+
+#### `vec.div(x, y): vector (I)`
+
+This function is called automatically by `x / y`.
+
+---
+
+##### `x: vector, y: vector`
+
+Element-wise division of `x` and `y`. Errors if the two vectors don't have
+the same length. Roughly equivalent to `x:hadamard(y:reciproc())`. Using this
 function instead of the previous snippet will tend to yield slightly more
 precise results.
 
 ---
 
-##### `a: vector, b: number`
+##### `x: vector, y: number`
 
-Divide every element of `a` by `b`. Roughly equivalent to `vec.scale(a, 1/b)`. Using this function instead of the previous snippet will tend to
+Divide every element of `x` by `y`. Roughly equivalent to `vec.scale(x, 1/y)`. Using this function instead of the previous snippet will tend to
 yield slightly more precise results.
 
 ---
 
-##### `a: number, b: vector`
+##### `x: number, y: vector`
 
-Divide `b` by every element of `a`. Roughly equivalent to
-`vec.scale(b:reciproc(), a)`. Using this function instead of the previous
+Divide `y` by every element of `x`. Roughly equivalent to
+`vec.scale(y:reciproc(), x)`. Using this function instead of the previous
 snippet will tend to yield slightly more precise results.
 
 ---
 
-#### `vec.pow(a, b): vector (I)`
+#### `vec.pow(x, y): vector (I)`
 
-This function is called automatically by `a ^ b`.
+This function is called automatically by `x ^ y`.
 
 ---
 
-##### `a: vector, b: vector`
+##### `x: vector, y: vector`
 
-Element-wise exponentiation of `a` and `b`. Errors if the two vectors don't
+Element-wise exponentiation of `x` and `y`. Errors if the two vectors don't
 have the same length.
 
 ---
 
-##### `a: vector, b: number`
+##### `x: vector, y: number`
 
-Raise every element of `a` to the `b`-th power.
-
----
-
-##### `a: number, b: vector`
-
-Raise `a` to the power of each element of `b`.
+Raise every element of `x` to the `y`-th power.
 
 ---
 
-#### `vec.neg(a): vector (I)`
+##### `x: number, y: vector`
 
-This function is called automatically by `-a`.
-
-Element-wise negation of `a`. Optimized equivalent to `a:scale(-1)`.
+Raise `x` to the power of each element of `y`.
 
 ---
 
-#### `vec.reciproc(a): vector (I)`
+#### `vec.neg(x: vector): vector (I)`
 
-Element-wise reciprocal of `a`. More precise equivalent to `vec.div(1, a)`.
+This function is called automatically by `-x`.
+
+Element-wise negation of `x`. Optimized equivalent to `x:scale(-1)`.
+
+---
+
+#### `vec.reciproc(x: vector): vector (I)`
+
+Element-wise reciprocal of `x`. More precise equivalent to `vec.div(1, x)`.
+
+---
+
+#### `vec.psy(x: vector, s: number, y: vector): vector (I)`
+
+"Plus scaled y": adds `x` to `y` scaled by a factor of `s`. Roughly
+equivalent to `x + s*y`. Using this function instead of the previous
+snippet will tend to yield slightly more precise results at a slightly
+better performance. Errors if the two vectors don't have the same length.
+
+---
+
+#### `vec.hadamard(x: vector, y: vector): vector (I)`
+
+Element-wise product of `x` and `y`. Errors if the two vectors don't have
+the same length.
+
+---
+
+#### `vec.scale(x: vector, s: number): vector (I)`
+
+Element-wise multiplication of `x` by `s`.
+
+---
+
+#### `vec.inner(x: vector, y: vector): number`
+
+Inner product between `x` and `y`. Also known as the scalar product between
+`x` and `y`. Errors if the two vectors don't have the same length.
