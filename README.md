@@ -42,17 +42,16 @@ print(t[1], t[50]) -- 0.0   3.14
 -- Evaluate sin at every point of t
 local s = vec.sin(t) -- or local s = t:sin()
 local area = vec.trapz(s, t) -- integrate using trapezoid rule
-print(area) -- 2.0
+print(area) -- 1.99
 
--- Allows for in-place operations
--- to avoid unnecessary allocs
+-- Allows for in-place operations to avoid unnecessary allocs
 local x = vec.linspace(-2, 2, 1001)
 for _ = 1, 1000 do
     x:sin_()
-    --   ^ extra _ at the end of the function name stores
+    --   ^ Extra _ at the end of the function name stores
     --     result in the same variable, or you can define
-    --     a destination vector as an additional parameter
-    --     see FunctionReference.md for more information
+    --     a destination vector as an additional parameter.
+    --     See FunctionReference.md for more information
 end
 print(x) -- sin(sin(sin(sin(...sin(x)))))
 ```
