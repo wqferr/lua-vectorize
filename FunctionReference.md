@@ -1,8 +1,7 @@
 # Function Reference
 
-Functions marked with a `(I)` have an in-place variant.
-
-## TODO explain in-place variants for functions somewhere
+Functions marked with a `(I)` have an in-place variant. Check the
+[section on in-place variants](#in-place-variants) for more information.
 
 ## Constructors
 
@@ -402,3 +401,49 @@ Element-wise application of the `tanh` hyperbolic trigonometric function.
 
 ### `vec.atanh(x: vector): vector (I)`
 Element-wise application of the `atanh` hyperbolic trigonometric function.
+
+<br/>
+
+---
+
+## In-place Variants
+
+**In-place variants provide a way to minimize memory allocations for your
+calculations. If this is not a concern for your use case, you may disregard
+these notes.**
+
+If a function has an in-place variant, you can request that it save the result
+in an existing vector instead of creating and returning a new one.
+
+This is done by appending a `_` to its name. For example:
+
+```lua
+local vec = require "vectorize"
+local v = vec {0, math.pi/2, math.pi, 3/2 * math.pi, 2 * math.pi}
+v:sin_() -- in-place operation: save result in self
+print(v) -- [0.0, 1.0, 0.0, 1.0, 0.0]
+```
+
+The addition of the `_` makes a call to `sin` be an in-place operation.  If,
+instead, you wish to save the result into a different vector (but still one
+that has been allocated already), that can also be done with in-place variants:
+
+```lua
+local vec = require "vectorize"
+local v = vec {1, 2, 3, 4}
+local w = vec {0, 0, 0, 0}
+
+for _ = 1, 10 do
+    vec.add_(v, w, w) -- or v:add_(w, w)
+    --             ^ note the extra parameter
+end
+print(w) -- [10.0, 20.0, 30.0, 40.0]
+```
+
+The extra parameter to the `add_` function requests that the result be saved in
+`w` instead of the first parameter.
+
+In-place variants also return the vector they saved the result into, so their
+integration with other coding practices (such as chaining calls) should be
+identical to the use of their non-in-place variants.
+
