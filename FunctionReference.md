@@ -223,6 +223,11 @@ Inner product between `x` and `y`. Also known as the scalar product between
 
 <br/>
 
+### `vec.project(x: vector, y: vector): vector (I)`
+
+Vector projection of `x` onto `y`. Errors if the two vectors don't have
+the same length.
+
 ---
 
 ## Direct Manipulation
@@ -345,61 +350,73 @@ tend to have better performance.
 ## Trigonometry
 
 ### `vec.sin(x: vector): vector (I)`
+
 Element-wise application of the `sin` trigonometric function.
 
 <br/>
 
 ### `vec.asin(x: vector): vector (I)`
+
 Element-wise application of the `asin` trigonometric function.
 
 <br/>
 
 ### `vec.sinh(x: vector): vector (I)`
+
 Element-wise application of the `sinh` hyperbolic trigonometric function.
 
 <br/>
 
 ### `vec.asinh(x: vector): vector (I)`
+
 Element-wise application of the `asinh` hyperbolic trigonometric function.
 
 <br/>
 
 ### `vec.cos(x: vector): vector (I)`
+
 Element-wise application of the `cos` trigonometric function.
 
 <br/>
 
 ### `vec.acos(x: vector): vector (I)`
+
 Element-wise application of the `acos` trigonometric function.
 
 <br/>
 
 ### `vec.cosh(x: vector): vector (I)`
+
 Element-wise application of the `cosh` hyperbolic trigonometric function.
 
 <br/>
 
 ### `vec.acosh(x: vector): vector (I)`
+
 Element-wise application of the `acosh` hyperbolic trigonometric function.
 
 <br/>
 
 ### `vec.tan(x: vector): vector (I)`
+
 Element-wise application of the `tan` trigonometric function.
 
 <br/>
 
 ### `vec.atan(x: vector): vector (I)`
+
 Element-wise application of the `atan` trigonometric function.
 
 <br/>
 
 ### `vec.tanh(x: vector): vector (I)`
+
 Element-wise application of the `tanh` hyperbolic trigonometric function.
 
 <br/>
 
 ### `vec.atanh(x: vector): vector (I)`
+
 Element-wise application of the `atanh` hyperbolic trigonometric function.
 
 <br/>
@@ -424,7 +441,7 @@ v:sin_() -- in-place operation: save result in self
 print(v) -- [0.0, 1.0, 0.0, 1.0, 0.0]
 ```
 
-The addition of the `_` makes a call to `sin` be an in-place operation.  If,
+The addition of the `_` makes a call to `sin` be an in-place operation. If,
 instead, you wish to save the result into a different vector (but still one
 that has been allocated already), that can also be done with in-place variants:
 
@@ -446,4 +463,3 @@ The extra parameter to the `add_` function requests that the result be saved in
 In-place variants also return the vector they saved the result into, so their
 integration with other coding practices (such as chaining calls) should be
 identical to the use of their non-in-place variants.
-

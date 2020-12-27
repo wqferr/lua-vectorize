@@ -596,6 +596,55 @@ int vec_inner(lua_State *L) {
   return 1;
 }
 
+int vec_project_into(lua_State *L) {
+  Vector *a = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *b = luaL_checkudata(L, 2, vector_mt_name);
+  Vector *out;
+  _vec_check_same_len(L, a, b);
+
+  if (lua_gettop(L) > 2) {
+    out = luaL_checkudata(L, 3, vector_mt_name);
+    _vec_check_same_len(L, a, out);
+  } else {
+    out = a;
+    lua_pushvalue(L, 1);
+  }
+
+  lua_Number norm2b = 0;
+  lua_Number ainnerb = 0;
+  for (lua_Integer i = 0; i < a->len; i++) {
+    ainnerb += a->values[i] * b->values[i];
+    norm2b += b->values[i] * b->values[i];
+  }
+
+  for (lua_Integer i = 0; i < out->len; i++) {
+    out->values[i] = (b->values[i] * ainnerb) / norm2b;
+  }
+
+  return 1;
+}
+
+int vec_project(lua_State *L) {
+  Vector *a = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *b = luaL_checkudata(L, 2, vector_mt_name);
+  _vec_check_same_len(L, a, b);
+
+  Vector *new = _vec_push_new(L, a->len);
+
+  lua_Number norm2b = 0;
+  lua_Number ainnerb = 0;
+  for (lua_Integer i = 0; i < a->len; i++) {
+    ainnerb += a->values[i] * b->values[i];
+    norm2b += b->values[i] * b->values[i];
+  }
+
+  for (lua_Integer i = 0; i < new->len; i++) {
+    new->values[i] = (b->values[i] * ainnerb) / norm2b;
+  }
+
+  return 1;
+}
+
 int vec_scale_into(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number scalar = luaL_checknumber(L, 2);
@@ -1065,7 +1114,8 @@ static const struct luaL_Reg functions[] = {
   {"scale", &vec_scale},
   {"scale_", &vec_scale_into},
   {"inner", &vec_inner},
-  // TODO project
+  {"project", &vec_project},
+  {"project_", &vec_project_into},
 
   {"at", &vec_at},
   {"len", &vec__len},
