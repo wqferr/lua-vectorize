@@ -387,3 +387,63 @@ tend to have better performance.
 <br/>
 
 ---
+
+### Trigonometry
+
+#### `vec.sin(x: vector): vector (I)`
+Element-wise application of the `sin` trigonometric function.
+
+<br/>
+
+#### `vec.asin(x: vector): vector (I)`
+Element-wise application of the `asin` trigonometric function.
+
+<br/>
+
+#### `vec.sinh(x: vector): vector (I)`
+Element-wise application of the `sinh` hyperbolic trigonometric function.
+
+<br/>
+
+#### `vec.asinh(x: vector): vector (I)`
+Element-wise application of the `asinh` hyperbolic trigonometric function.
+
+<br/>
+
+#### `vec.cos(x: vector): vector (I)`
+Element-wise application of the `cos` trigonometric function.
+
+<br/>
+
+#### `vec.acos(x: vector): vector (I)`
+Element-wise application of the `acos` trigonometric function.
+
+<br/>
+
+#### `vec.cosh(x: vector): vector (I)`
+Element-wise application of the `cosh` hyperbolic trigonometric function.
+
+<br/>
+
+#### `vec.acosh(x: vector): vector (I)`
+Element-wise application of the `acosh` hyperbolic trigonometric function.
+
+<br/>
+
+#### `vec.tan(x: vector): vector (I)`
+Element-wise application of the `tan` trigonometric function.
+
+<br/>
+
+#### `vec.atan(x: vector): vector (I)`
+Element-wise application of the `atan` trigonometric function.
+
+<br/>
+
+#### `vec.tanh(x: vector): vector (I)`
+Element-wise application of the `tanh` hyperbolic trigonometric function.
+
+<br/>
+
+#### `vec.atanh(x: vector): vector (I)`
+Element-wise application of the `atanh` hyperbolic trigonometric function.
