@@ -210,16 +210,15 @@ This function is called automatically by `a / b`.
 ##### `a: vector, b: vector`
 
 Element-wise division of `a` and `b`. Errors if the two vectors don't have
-the same length. Roughly equivalent to `a:hadamard(b:reciproc)`.  Using
-this function instead of the previous snippet will tend to yield slightly
-more precise results.
+the same length. Roughly equivalent to `a:hadamard(b:reciproc)`. Using this
+function instead of the previous snippet will tend to yield slightly more
+precise results.
 
 ---
 
 ##### `a: vector, b: number`
 
-Divide every element of `a` by `b`. Roughly equivalent to `vec.scale(a,
-1/b)`. Using this function instead of the previous snippet will tend to
+Divide every element of `a` by `b`. Roughly equivalent to `vec.scale(a, 1/b)`. Using this function instead of the previous snippet will tend to
 yield slightly more precise results.
 
 ---
@@ -231,3 +230,40 @@ Divide `b` by every element of `a`. Roughly equivalent to
 snippet will tend to yield slightly more precise results.
 
 ---
+
+#### `vec.pow(a, b): vector (I)`
+
+This function is called automatically by `a ^ b`.
+
+---
+
+##### `a: vector, b: vector`
+
+Element-wise exponentiation of `a` and `b`. Errors if the two vectors don't
+have the same length.
+
+---
+
+##### `a: vector, b: number`
+
+Raise every element of `a` to the `b`-th power.
+
+---
+
+##### `a: number, b: vector`
+
+Raise `a` to the power of each element of `b`.
+
+---
+
+#### `vec.neg(a): vector (I)`
+
+This function is called automatically by `-a`.
+
+Element-wise negation of `a`. Optimized equivalent to `a:scale(-1)`.
+
+---
+
+#### `vec.reciproc(a): vector (I)`
+
+Element-wise reciprocal of `a`. More precise equivalent to `vec.div(1, a)`.
