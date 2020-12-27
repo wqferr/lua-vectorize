@@ -361,3 +361,29 @@ Element-wise square root of `x`.
 Element-wise cube root of `x`.
 
 <br/>
+
+---
+
+### Exponentials and Friends
+
+#### `vec.exp(x: vector): vector (I)`
+
+Element-wise exponentiation (base `e`) of `x`.
+
+<br/>
+
+#### `vec.ln(x: vector): vector (I)`
+
+Element-wise natural logarithm of `x`.
+
+<br/>
+
+#### `vec.ln1p(x: vector): vector (I)`
+
+Element-wise natural logarithm of `1+x`. Roughly equivalent to
+`vec.ln(1+x)`. Using this function instead of the previous snippet will
+tend to have better performance.
+
+<br/>
+
+---
