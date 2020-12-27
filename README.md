@@ -19,3 +19,26 @@ This project aims to add many features of NumLua over time. For now, it
 only supports basic vector operations such as vector addition, scaling,
 hadamard product, and normalizing, as well as element-wise trigonometric
 and exponential functions.
+
+## Example Usage
+
+```lua
+local vec = require "vectorize"
+local v = vec {2, 0, 1}
+
+-- Functions can be accessed by the vec table
+print(vec.sum(v)) --> 3
+-- Or directly as methods
+print(v:sum()) --> 3
+
+-- Operator broadcasting
+print(v + 2) --> [4, 2, 3]
+print(v ^ 0.5) --> [1.41, 0, 1]
+
+-- 50 equally-spaced values between 0 and pi
+local t = vec.linspace(0, math.pi, 50)
+-- Evaluate sin at every point of t
+local s = vec.sin(t) -- or local s = t:sin()
+local area = vec.trapz(s, t) -- integrate using trapezoid rule
+print(area) -- 2.0
+```
