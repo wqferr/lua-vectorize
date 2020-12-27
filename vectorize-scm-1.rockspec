@@ -1,5 +1,5 @@
 package = "vectorize"
-version = "scm-0"
+version = "scm-1"
 source = {
   url = "git://github.com/wqferr/lua-vectorize.git"
 }
