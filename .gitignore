@@ -56,4 +56,5 @@ dkms.conf
 
 # LuaRocks
 *.rockspec
+*.rock
 !vectorize-scm-*.rockspec
