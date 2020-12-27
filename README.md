@@ -58,4 +58,10 @@ print(x) -- sin(sin(sin(sin(...sin(x)))))
 
 ## Function Reference
 
-The full reference to the functions implemented in this library can be found in the [FunctionReference.md](FunctionReference.md) file
+The full reference to the functions implemented in this library can be found in
+the [FunctionReference.md](FunctionReference.md) file.
+
+## Future Development
+
+For now I am the only developer for the project. The current things I wish to
+implement in the future can be found in the [TODO.md](TODO.md) file.
