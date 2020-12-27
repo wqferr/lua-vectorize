@@ -1072,8 +1072,8 @@ static const struct luaL_Reg functions[] = {
   {"iter", &vec_iter},
   {"sum", &vec_sum},
 
-  {"norm2", &vec_norm2},
   {"norm", &vec_norm},
+  {"norm2", &vec_norm2},
   {"normalize", &vec_normalize},
   {"normalize_", &vec_normalize_into},
 

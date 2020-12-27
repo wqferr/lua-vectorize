@@ -51,8 +51,6 @@ Functions marked with a `(I)` have an in-place variant.
 
 ### Constructors
 
-<br/>
-
 #### `vec.new(size: number): vector`
 
 Create a new vector with the given length.  
@@ -100,6 +98,8 @@ Create a new vector with the same length and elements as `original`.
 
 <br/>
 
+---
+
 ### Serialization / Deserialization
 
 #### `vec.save(v: vector, filename: string)`
@@ -120,6 +120,8 @@ Please note that transferring a vector file from one machine to another is
 not guaranteed to work. If the machine architectures differ in the number
 of bytes of `lua_Integer` or `lua_Number`, `vec.load` will detect this and
 generate an error.
+
+<br/>
 
 ---
 
@@ -265,6 +267,8 @@ Element-wise multiplication of `x` by `s`.
 Inner product between `x` and `y`. Also known as the scalar product between
 `x` and `y`. Errors if the two vectors don't have the same length.
 
+<br/>
+
 ---
 
 ### Direct Manipulation
@@ -292,3 +296,68 @@ table.
 #### `vec.sum(x: vector): number`
 
 Sum all elements of the vector.
+
+<br/>
+
+---
+
+### Norms and Normalization
+
+#### `vec.norm(x: vector): number`
+
+Euclidean norm of the vector.
+
+<br/>
+
+#### `vec.norm2(x: vector): number`
+
+Squared euclidean norm of the vector.
+
+<br/>
+
+#### `vec.normalize(x: vector): vector (I)`
+
+A vector with the same direction as `x`, but whose norm is `1.0`.
+
+<br/>
+
+---
+
+### Numeric integration
+
+#### `vec.trapz(y: vector, x: vector): number`
+
+Integrate using the trapezoid method for points with heights `y` and
+abscissas `x`.
+
+---
+
+### Specialized Algebra Cases
+
+#### `vec.sq(x: vector): vector (I)`
+
+Element-wise squaring of `x`. Tends to be faster and more precise than
+`x:pow(2)`.  
+Aliased to `vec.square`.
+
+<br/>
+
+#### `vec.cb(x: vector): vector (I)`
+
+Element-wise cubing of `x`. Tends to be faster and more precise than
+`x:pow(3)`.  
+Aliased to `vec.cube`.
+
+<br/>
+
+#### `vec.sqrt(x: vector): vector (I)`
+
+Element-wise square root of `x`.
+
+<br/>
+
+#### `vec.cbrt(x: vector): vector (I)`
+
+Element-wise cube root of `x`.
+
+<br/>
