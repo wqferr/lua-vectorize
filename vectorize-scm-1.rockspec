@@ -7,10 +7,9 @@ source = {
 description = {
   summary = "Simple and naïve vectorization for Lua.",
   detailed = [[
-Vectorized routines akin to numpy's array. Currently only supports
-1D arrays, with elementwise operators.
-Aims to be a replacement for NumLua for newer versions of Lua, but
-it's not there yet.]],
+Vectorized routines akin to numpy's array. Currently only supports 1D arrays, with element-wise operators and common functions such as exp, sin, project, and friends.
+Aims to be a replacement for NumLua for newer versions of Lua (since the last commit on that project was 10 years ago), but this is still a very young project.
+Contributions are welcome!]],
   homepage = "https://github.com/wqferr/lua-vectorize",
   license = "GPL-3.0"
 }
