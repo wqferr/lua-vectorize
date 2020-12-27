@@ -16,7 +16,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  test-52:
+  test-53:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -29,7 +29,7 @@ jobs:
         uses: leafo/gh-actions-lua@v8.0.0
         with:
           # The version of Lua to install, must be available on https://www.lua.org/ftp/ or http://luajit.org/download.html
-          luaVersion: 5.2
+          luaVersion: 5.3
 
       - name: Install LuaRocks
         uses: leafo/gh-actions-luarocks@v4.0.0
