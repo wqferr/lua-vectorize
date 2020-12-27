@@ -51,7 +51,7 @@ Functions marked with a `(I)` have an in-place variant.
 
 ### Constructors
 
----
+<br/>
 
 #### `vec.new(size: number): vector`
 
@@ -60,14 +60,14 @@ Create a new vector with the given length.
 
 This function can also be called as `vec(size)`.
 
----
+<br/>
 
 #### `vec.ones(size: number): vector`
 
 Create a new vector wiht the given length.  
 `size` must be a positive integer; all elements will be `1.0`.
 
----
+<br/>
 
 #### `vec.from(list: {number}): vector`
 
@@ -76,7 +76,7 @@ All elements of the given list must be numbers.
 
 This function can also be called as `vec(list)`.
 
----
+<br/>
 
 #### `vec.basis(size: number, b: number): vector`
 
@@ -84,7 +84,7 @@ Create a new vector where all elements are `0.0`, except for `v[b]`, which
 will be `1.0`.  
 `size` and `b` must be positive integers.
 
----
+<br/>
 
 #### `vec.linspace(start: number, end: number, n: number): vector`
 
@@ -92,13 +92,13 @@ Create a new vector with length `n` whose elements are equally spaced between
 `start` and `end` (inclusive).  
 `n` must be a positive integer.
 
----
+<br/>
 
 #### `vec.dup(original: vector): vector (I)`
 
 Create a new vector with the same length and elements as `original`.
 
----
+<br/>
 
 ### Serialization / Deserialization
 
@@ -110,7 +110,7 @@ The recommended extension for the file is `*.luavec`.
 Please note that transferring a vector file from one machine to another is
 not guaranteed to work. For more information, see `vec.load`.
 
----
+<br/>
 
 #### `vec.load(filename: string): vector`
 
@@ -125,87 +125,65 @@ generate an error.
 
 ### Arithmetic
 
----
-
 #### `vec.add(x, y): vector (I)`
 
 This function is called automatically by `x + y`. Errors if the two vectors
 don't have the same length.
 
----
-
 ##### `x: vector, y: vector`
 
 Element-wise addition of `x` and `y`.
-
----
 
 ##### `x: vector, y: number`
 
 Add `y` to every element of `x`.
 
----
-
 ##### `x: number, y: vector`
 
 Add `x` to every element of `y`.
 
----
+<br/>
 
 #### `vec.sub(x, y): vector (I)`
 
 This function is called automatically by `x - y`.
-
----
 
 ##### `x: vector, y: vector`
 
 Element-wise subtraction of `x` and `y`. Errors if the two vectors don't
 have the same length.
 
----
-
 ##### `x: vector, y: number`
 
 Subtract `y` from every element of `x`.
-
----
 
 ##### `x: number, y: vector`
 
 Subtract every element of `y` from `x`.
 
----
+<br/>
 
 #### `vec.mul(x, y): vector (I)`
 
 This function is called automatically by `x * y`.
 
----
-
 ##### `x: vector, y: vector`
 
 Element-wise multiplication of `x` and `y`. Equivalent to `vec.hadamard(x, y)`. Errors if the two vectors don't have the same length.
-
----
 
 ##### `x: vector, y: number`
 
 Equivalent to `vec.scale(x, y)`.
 
----
-
 ##### `x: number, y: vector`
 
 Equivalent to `vec.scale(y, x)`.
 
----
+<br/>
 
 #### `vec.div(x, y): vector (I)`
 
 This function is called automatically by `x / y`.
-
----
 
 ##### `x: vector, y: vector`
 
@@ -214,14 +192,10 @@ the same length. Roughly equivalent to `x:hadamard(y:reciproc())`. Using this
 function instead of the previous snippet will tend to yield slightly more
 precise results.
 
----
-
 ##### `x: vector, y: number`
 
 Divide every element of `x` by `y`. Roughly equivalent to `vec.scale(x, 1/y)`. Using this function instead of the previous snippet will tend to
 yield slightly more precise results.
-
----
 
 ##### `x: number, y: vector`
 
@@ -229,32 +203,26 @@ Divide `y` by every element of `x`. Roughly equivalent to
 `vec.scale(y:reciproc(), x)`. Using this function instead of the previous
 snippet will tend to yield slightly more precise results.
 
----
+<br/>
 
 #### `vec.pow(x, y): vector (I)`
 
 This function is called automatically by `x ^ y`.
-
----
 
 ##### `x: vector, y: vector`
 
 Element-wise exponentiation of `x` and `y`. Errors if the two vectors don't
 have the same length.
 
----
-
 ##### `x: vector, y: number`
 
 Raise every element of `x` to the `y`-th power.
-
----
 
 ##### `x: number, y: vector`
 
 Raise `x` to the power of each element of `y`.
 
----
+<br/>
 
 #### `vec.neg(x: vector): vector (I)`
 
@@ -262,13 +230,13 @@ This function is called automatically by `-x`.
 
 Element-wise negation of `x`. Optimized equivalent to `x:scale(-1)`.
 
----
+<br/>
 
 #### `vec.reciproc(x: vector): vector (I)`
 
 Element-wise reciprocal of `x`. More precise equivalent to `vec.div(1, x)`.
 
----
+<br/>
 
 #### `vec.psy(x: vector, s: number, y: vector): vector (I)`
 
@@ -277,20 +245,20 @@ equivalent to `x + s*y`. Using this function instead of the previous
 snippet will tend to yield slightly more precise results at a slightly
 better performance. Errors if the two vectors don't have the same length.
 
----
+<br/>
 
 #### `vec.hadamard(x: vector, y: vector): vector (I)`
 
 Element-wise product of `x` and `y`. Errors if the two vectors don't have
 the same length.
 
----
+<br/>
 
 #### `vec.scale(x: vector, s: number): vector (I)`
 
 Element-wise multiplication of `x` by `s`.
 
----
+<br/>
 
 #### `vec.inner(x: vector, y: vector): number`
 
