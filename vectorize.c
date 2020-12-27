@@ -645,6 +645,24 @@ int vec_project(lua_State *L) {
   return 1;
 }
 
+int vec_cosine_similarity(lua_State *L) {
+  Vector *a = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *b = luaL_checkudata(L, 2, vector_mt_name);
+  _vec_check_same_len(L, a, b);
+  lua_Number norm2a = 0, norm2b = 0;
+  lua_Number ainnerb = 0;
+
+  for (lua_Integer i = 0; i < a->len; i++) {
+    norm2a += a->values[i] * a->values[i];
+    norm2b += b->values[i] * b->values[i];
+    ainnerb += a->values[i] * b->values[i];
+  }
+
+  // product inside sqrt to avoid loss of precision
+  lua_pushnumber(L, ainnerb / (sqrt(norm2a * norm2b)));
+  return 1;
+}
+
 int vec_scale_into(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_Number scalar = luaL_checknumber(L, 2);
@@ -1116,6 +1134,7 @@ static const struct luaL_Reg functions[] = {
   {"inner", &vec_inner},
   {"project", &vec_project},
   {"project_", &vec_project_into},
+  {"cosine_similarity", &vec_cosine_similarity},
 
   {"at", &vec_at},
   {"len", &vec__len},

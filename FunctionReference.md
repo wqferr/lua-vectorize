@@ -228,6 +228,18 @@ Inner product between `x` and `y`. Also known as the scalar product between
 Vector projection of `x` onto `y`. Errors if the two vectors don't have
 the same length.
 
+<br/>
+
+### `vec.cosine_similarity(x: vector, y: vector): number`
+
+Vector cosine similarity. Defined as
+`(x:inner(y)) / (x:norm() * y:norm())`. Numerically equal to the cosine of
+the angle between them, hence the name. Errors if the two vectors don't
+have the same length. Using this function instead of the previous snippet
+will tend to yield more precise results and have better performance.
+
+<br/>
+
 ---
 
 ## Direct Manipulation
