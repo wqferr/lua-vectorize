@@ -83,12 +83,12 @@ generate an error.
 
 ### `vec.add(x, y): vector (I)`
 
-This function is called automatically by `x + y`. Errors if the two vectors
-don't have the same length.
+This function is called automatically by `x + y`.
 
 #### `x: vector, y: vector`
 
-Element-wise addition of `x` and `y`.
+Element-wise addition of `x` and `y`. Errors if the two vectors don't have the
+same length.
 
 #### `x: vector, y: number`
 
@@ -125,7 +125,8 @@ This function is called automatically by `x * y`.
 
 #### `x: vector, y: vector`
 
-Element-wise multiplication of `x` and `y`. Equivalent to `vec.hadamard(x, y)`. Errors if the two vectors don't have the same length.
+Element-wise multiplication of `x` and `y`. Equivalent to `vec.hadamard(x, y)`.
+Errors if the two vectors don't have the same length.
 
 #### `x: vector, y: number`
 
@@ -143,15 +144,16 @@ This function is called automatically by `x / y`.
 
 #### `x: vector, y: vector`
 
-Element-wise division of `x` and `y`. Errors if the two vectors don't have
-the same length. Roughly equivalent to `x:hadamard(y:reciproc())`. Using this
-function instead of the previous snippet will tend to yield slightly more
-precise results.
+Element-wise division of `x` and `y`. Roughly equivalent to
+`x:hadamard(y:reciproc())`. Using this function instead of the previous snippet
+will tend to yield slightly more precise results. Errors if the two vectors
+don't have the same length.
 
 #### `x: vector, y: number`
 
-Divide every element of `x` by `y`. Roughly equivalent to `vec.scale(x, 1/y)`. Using this function instead of the previous snippet will tend to
-yield slightly more precise results.
+Divide every element of `x` by `y`. Roughly equivalent to `vec.scale(x, 1/y)`.
+Using this function instead of the previous snippet will tend to yield slightly
+more precise results.
 
 #### `x: number, y: vector`
 
