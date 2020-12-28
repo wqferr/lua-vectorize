@@ -7,16 +7,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "vector.h"
+
 const char vector_mt_name[] = "vector";
 const char vector_lib_mt_name[] = "liblua-vectorize";
 
 const uint8_t intsize = sizeof(lua_Integer);
 const uint8_t numbersize = sizeof(lua_Number);
-
-typedef struct Vector {
-  lua_Number *values;
-  lua_Integer len;
-} Vector;
 
 void _vec_check_oob(lua_State *L, int idx, lua_Integer len) {
   // idx is the 0-based index!
