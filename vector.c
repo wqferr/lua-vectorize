@@ -15,7 +15,7 @@ const char vector_mt_name[] = "vector";
 const uint8_t intsize = sizeof(lua_Integer);
 const uint8_t numbersize = sizeof(lua_Number);
 
-void _vec_check_oob(lua_State *L, int idx, lua_Integer len) {
+static inline void _vec_check_oob(lua_State *L, int idx, lua_Integer len) {
   // idx is the 0-based index!
   if (idx < 0) {
     luaL_error(L, "Expected positive integer, got %d", idx + 1);
@@ -25,7 +25,8 @@ void _vec_check_oob(lua_State *L, int idx, lua_Integer len) {
   }
 }
 
-void _vec_check_same_len(lua_State *L, const Vector *x, const Vector *y) {
+static inline void
+_vec_check_same_len(lua_State *L, const Vector *x, const Vector *y) {
   if (x->len != y->len) {
     luaL_error(
       L, "Vectors must have the same length (%d != %d)", x->len, y->len);
@@ -55,7 +56,7 @@ int vec_new(lua_State *L) {
   return 1;
 }
 
-Vector *_vec_push_new(lua_State *L, lua_Integer len) {
+static inline Vector *_vec_push_new(lua_State *L, lua_Integer len) {
   lua_pushcfunction(L, &vec_new);
   lua_pushinteger(L, len);
   lua_call(L, 1, 1);
@@ -447,7 +448,7 @@ int vec__len(lua_State *L) {
   return 1;
 }
 
-void _vec_broadcast_add_into(
+static inline void _vec_broadcast_add_into(
   lua_State *L, Vector *v, lua_Number scalar, Vector *out) {
   _vec_check_same_len(L, v, out);
   for (lua_Integer i = 0; i < out->len; i++) {
@@ -455,7 +456,7 @@ void _vec_broadcast_add_into(
   }
 }
 
-void _vec_broadcast_pow_rev_into(
+static inline void _vec_broadcast_pow_rev_into(
   lua_State *L, lua_Number base, const Vector *v, Vector *out) {
   _vec_check_same_len(L, v, out);
   for (lua_Integer i = 0; i < out->len; i++) {
@@ -463,7 +464,7 @@ void _vec_broadcast_pow_rev_into(
   }
 }
 
-void _vec_broadcast_pow_into(
+static inline void _vec_broadcast_pow_into(
   lua_State *L, const Vector *v, lua_Number e, Vector *out) {
   _vec_check_same_len(L, v, out);
   for (lua_Integer i = 0; i < out->len; i++) {
@@ -471,8 +472,8 @@ void _vec_broadcast_pow_into(
   }
 }
 
-void _vec_pow_into(
-  lua_State *L, const Vector *b, const Vector *e, Vector *out) {
+static inline void
+_vec_pow_into(lua_State *L, const Vector *b, const Vector *e, Vector *out) {
   _vec_check_same_len(L, b, e);
   _vec_check_same_len(L, b, out);
   for (lua_Integer i = 0; i < out->len; i++) {
@@ -480,7 +481,7 @@ void _vec_pow_into(
   }
 }
 
-void _vec_xpsy_into(
+static inline void _vec_xpsy_into(
   lua_State *L, const Vector *x, lua_Number s, const Vector *y, Vector *out) {
   _vec_check_same_len(L, x, y);
   _vec_check_same_len(L, x, out);
@@ -489,7 +490,7 @@ void _vec_xpsy_into(
   }
 }
 
-void _vec_hadamard_product_into(
+static inline void _vec_hadamard_product_into(
   lua_State *L, const Vector *x, const Vector *y, Vector *out) {
   _vec_check_same_len(L, x, y);
   _vec_check_same_len(L, x, out);
@@ -498,14 +499,15 @@ void _vec_hadamard_product_into(
   }
 }
 
-void _vec_scale_into(lua_State *L, const Vector *v, lua_Number s, Vector *out) {
+static inline void
+_vec_scale_into(lua_State *L, const Vector *v, lua_Number s, Vector *out) {
   _vec_check_same_len(L, v, out);
   for (lua_Integer i = 0; i < out->len; i++) {
     out->values[i] = v->values[i] * s;
   }
 }
 
-void _vec_scale_reciproc_into(
+static inline void _vec_scale_reciproc_into(
   lua_State *L, const Vector *v, lua_Number s, Vector *out) {
   _vec_check_same_len(L, v, out);
   for (lua_Integer i = 0; i < out->len; i++) {
@@ -513,7 +515,7 @@ void _vec_scale_reciproc_into(
   }
 }
 
-void _vec_elmwise_div_into(
+static inline void _vec_elmwise_div_into(
   lua_State *L, const Vector *x, const Vector *y, Vector *out) {
   _vec_check_same_len(L, x, y);
   _vec_check_same_len(L, x, out);
@@ -522,7 +524,7 @@ void _vec_elmwise_div_into(
   }
 }
 
-void _vec_elmwise_div_scalar_into(
+static inline void _vec_elmwise_div_scalar_into(
   lua_State *L, lua_Number scalar, const Vector *x, Vector *out) {
   _vec_check_same_len(L, x, out);
   for (lua_Integer i = 0; i < out->len; i++) {
@@ -735,7 +737,7 @@ def_vec_op_func(tanh);
 def_vec_op_func(atan);
 def_vec_op_func(atanh);
 
-int _vec_iter_closure(lua_State *L) {
+static inline int _vec_iter_closure(lua_State *L) {
   Vector *v = lua_touserdata(L, 1);          // immutable iter state
   lua_Integer cur_idx = lua_tointeger(L, 2); // mutable iter state
 
