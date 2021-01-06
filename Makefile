@@ -10,7 +10,7 @@ LIBS= -llua -lm
 all: vectorize.so
 
 clean:
-	$(RM) vectorize.so
+	$(RM) vectorize.o vectorize.so
 
 vectorize.so: vectorize.c
-	$(CC) -o vectorize.so $(LIBFLAG) $(C_FLAGS) $(CFLAGS) vectorize.c -I$(LUA_LIBDIR) $(LIBS)
+	$(CC) -o vectorize.so $(LIBFLAG) $(C_FLAGS) $(CFLAGS) vectorize.c vector.c -I$(LUA_LIBDIR) $(LIBS)

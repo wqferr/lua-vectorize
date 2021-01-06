@@ -22,7 +22,7 @@ build = {
   type = "builtin",
   modules = {
     vectorize = {
-      sources = {"vectorize.c"},
+      sources = {"vectorize.c", "vector.c"},
       libraries = {"m"}
     }
   }
