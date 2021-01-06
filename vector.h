@@ -107,6 +107,8 @@ int vec__gc(lua_State *L);
 
 void create_vector_metatable(lua_State *L, int libstackidx);
 
+// Can't define it here because it's considered to be included multiple times.
+// Declare it with its size so it can be used in luaL_newlib in vectorize.c.
 extern const struct luaL_Reg vec_functions[85];
 
 #endif /* ifndef _VECTORIZE_VEC_H */
