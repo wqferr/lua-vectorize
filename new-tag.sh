@@ -3,7 +3,7 @@ set -e
 
 [ -z "$1" ] && { echo 'No tag given'; exit 1; }
 
-git tag -m '' "$1"
+git tag -m "$2" "$1"
 git push origin "$1"
 scm_rockspec_file='vectorize-scm-1.rockspec'
 rockspec_file="$(luarocks new_version "$scm_rockspec_file" "$1" --tag "$1" | cut -f2 -d' ')"
