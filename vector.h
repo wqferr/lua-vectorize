@@ -107,4 +107,6 @@ int vec__gc(lua_State *L);
 
 void create_vector_metatable(lua_State *L, int libstackidx);
 
+extern const struct luaL_Reg vec_functions[85];
+
 #endif /* ifndef _VECTORIZE_VEC_H */
