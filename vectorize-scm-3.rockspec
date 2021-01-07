@@ -24,6 +24,10 @@ build = {
     vectorize = {
       sources = {"vectorize.c"},
       libraries = {"m"}
+    },
+    ["vectorize.ode"] = {
+      sources = {"ode.c"},
+      libraries = {"m"}
     }
   }
 }
