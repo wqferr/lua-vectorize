@@ -17,26 +17,47 @@ args:
   stepsize: number
   */
 int ode_custom_init(lua_State *L) {
-  int initstateidx;
-
-  if (lua_istable(L, 3)) {
-
+  if (lua_isnumber(L, 3)) {
+    // Get vectorize lib
     lua_getglobal(L, "require");
     lua_pushstring(L, "vectorize");
     lua_call(L, 1, 1);
 
-    lua_pushvalue(L, 3);
+    // Create single-element vector
+    lua_pushinteger(L, 1);
     lua_call(L, 1, 1);
-    initstateidx = lua_gettop(L);
 
+    // Set its element to 3rd arg
+    lua_pushvalue(L, 3);
+    lua_seti(L, -2, 1);
+
+    // Make sure it worked
     if (!lua_isuserdata(L, -1)) {
       return luaL_error(L, "Could not create vector (unknown error)");
     }
 
-  } else if (lua_isnumber(L, 3) || luaL_testudata(L, 3, vector_mt_name)) {
-    initstateidx = 3;
+    // Put converted value back in its place
+    lua_replace(L, 3);
 
-  } else {
+  } else if (lua_istable(L, 3)) {
+    // Get vectorize lib
+    lua_getglobal(L, "require");
+    lua_pushstring(L, "vectorize");
+    lua_call(L, 1, 1);
+
+    // Create vector from table arg
+    lua_pushvalue(L, 3);
+    lua_call(L, 1, 1);
+
+    // Make sure it worked
+    if (!lua_isuserdata(L, -1)) {
+      return luaL_error(L, "Could not create vector (unknown error)");
+    }
+
+    // Put converted value back in its place
+    lua_replace(L, 3);
+
+  } else if (!luaL_testudata(L, 3, vector_mt_name)) {
     return luaL_error(
       L,
       "Expected a vector, a number, or an array-like table, got %s",
@@ -56,7 +77,7 @@ int ode_custom_init(lua_State *L) {
   lua_pushvalue(L, 2);
   lua_setiuservalue(L, -2, VECTORIZE_ODE_INTEGRAND_UV);
 
-  lua_pushvalue(L, initstateidx);
+  lua_pushvalue(L, 3);
   lua_setiuservalue(L, -2, VECTORIZE_ODE_STATE_UV);
 
   return 1;
@@ -79,8 +100,14 @@ int ode_custom_init(lua_State *L) {
 /* int ode_rk4_init(lua_State *L) { */
 /* } */
 
+int ode_state(lua_State *L) {
+  luaL_checkudata(L, 1, ode_mt_name);
+  lua_getiuservalue(L, -1, VECTORIZE_ODE_STATE_UV);
+  return 1;
+}
+
 const struct luaL_Reg ode_functions[] = {
-  {"custom", &ode_custom_init}, {NULL, NULL}};
+  {"custom", &ode_custom_init}, {"state", &ode_state}, {NULL, NULL}};
 
 static void create_ode_metatable(lua_State *L, int libstackidx) {
   libstackidx = lua_absindex(L, libstackidx);
