@@ -9,7 +9,6 @@
 
 #include "vector.h"
 
-const char vector_mt_name[] = "vector";
 const char vector_lib_mt_name[] = "liblua-vectorize";
 
 const uint8_t intsize = sizeof(lua_Integer);

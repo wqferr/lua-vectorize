@@ -3,7 +3,7 @@
 
 #include "lua.h"
 
-extern const char vector_mt_name[];
+const char vector_mt_name[] = "vector";
 
 typedef struct Vector {
   lua_Number *values;

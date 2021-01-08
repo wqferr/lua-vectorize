@@ -9,7 +9,7 @@
 #define VECTORIZE_ODE_INTEGRAND_UV (2)
 #define VECTORIZE_ODE_STATE_UV (3)
 
-extern const char ode_mt_name[];
+const char ode_mt_name[] = "ode";
 
 typedef struct ODE {
   lua_Integer curiter;

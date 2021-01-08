@@ -9,53 +9,37 @@
 
 #include "ode.h"
 
-const char ode_mt_name[] = "ode";
-
-/* const char ode_lib_mt_name[] = "liblua-vectorize-ode"; */
-/* const char ode_mt_name[] = "ODE"; */
-
-/* static void create_lib_metatable(lua_State *L) { */
-/*   luaL_newmetatable(L, ode_lib_mt_name); */
-/*   lua_pop(L, 1); */
-/* } */
-
 /*
 args:
   integration method: callable (uncheckable at creation)
   integrand: callable (uncheckable at creation)
-  initstate: {number} or Vector
+  initstate: number | {number} | Vector
   stepsize: number
   */
 int ode_custom_init(lua_State *L) {
-  /* Vector *initstate; */
   int initstateidx;
 
-  /* printf( */
-  /*   "%s\t%s\t%s\t%s\n", */
-  /*   lua_typename(L, lua_type(L, 1)), */
-  /*   lua_typename(L, lua_type(L, 2)), */
-  /*   lua_typename(L, lua_type(L, 3)), */
-  /*   lua_typename(L, lua_type(L, 4))); */
-
   if (lua_istable(L, 3)) {
-    lua_pushcfunction(L, &vec_from);
+
+    lua_getglobal(L, "require");
+    lua_pushstring(L, "vectorize");
+    lua_call(L, 1, 1);
+
     lua_pushvalue(L, 3);
     lua_call(L, 1, 1);
     initstateidx = lua_gettop(L);
-    /* initstate = lua_touserdata(L, -1); */
-    /* lua_pop(L, 1); */
 
     if (!lua_isuserdata(L, -1)) {
       return luaL_error(L, "Could not create vector (unknown error)");
     }
 
-  } else if (luaL_testudata(L, 3, vector_mt_name)) {
+  } else if (lua_isnumber(L, 3) || luaL_testudata(L, 3, vector_mt_name)) {
     initstateidx = 3;
 
   } else {
     return luaL_error(
       L,
-      "Expected a vector or an array-like table, got %s",
+      "Expected a vector, a number, or an array-like table, got %s",
       lua_typename(L, lua_type(L, 3)));
   }
 

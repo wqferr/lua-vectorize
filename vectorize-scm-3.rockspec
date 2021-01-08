@@ -26,7 +26,7 @@ build = {
       libraries = {"m"}
     },
     ["vectorize.ode"] = {
-      sources = {"ode.c", "vectorize.c"},
+      sources = {"ode.c"},
       libraries = {"m"}
     }
   }
