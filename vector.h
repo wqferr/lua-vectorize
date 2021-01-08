@@ -3,9 +3,14 @@
 
 #include "lua.h"
 
+extern const char vector_mt_name[];
+
 typedef struct Vector {
   lua_Number *values;
   lua_Integer len;
 } Vector;
+
+int vec_new(lua_State *L);
+int vec_from(lua_State *L);
 
 #endif /* ifndef _VECTORIZE_VEC_H */

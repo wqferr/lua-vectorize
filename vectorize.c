@@ -9,8 +9,8 @@
 
 #include "vector.h"
 
-const char vector_lib_mt_name[] = "liblua-vectorize";
 const char vector_mt_name[] = "vector";
+const char vector_lib_mt_name[] = "liblua-vectorize";
 
 const uint8_t intsize = sizeof(lua_Integer);
 const uint8_t numbersize = sizeof(lua_Number);
@@ -41,15 +41,15 @@ int vec_new(lua_State *L) {
   len = luaL_checkinteger(L, 1);
   lua_pop(L, 1);
   if (len <= 0) {
-    luaL_error(L, "Expected positive integer for size, got %d", len);
+    return luaL_error(L, "Expected positive integer for size, got %d", len);
   }
 
   values = calloc(len, sizeof(*values));
   if (values == NULL) {
-    luaL_error(L, "Could not allocate vector");
+    return luaL_error(L, "Could not allocate vector");
   }
 
-  v = lua_newuserdata(L, sizeof(*v));
+  v = lua_newuserdatauv(L, sizeof(*v), 0);
   luaL_setmetatable(L, vector_mt_name);
   v->len = len;
   v->values = values;
@@ -71,7 +71,7 @@ int vec_from(lua_State *L) {
     lua_pushinteger(L, i);
     lua_gettable(L, 1);
     if (!lua_isnumber(L, -1)) {
-      luaL_error(
+      return luaL_error(
         L,
         "Tried to create a vector, but element at position %d is a %s instead "
         "of a number",
@@ -127,13 +127,13 @@ int vec_save(lua_State *L) {
   FILE *fp = fopen(filename, "wb+");
 
   if (fp == NULL) {
-    luaL_error(L, "Could not open file %s for writing.", filename);
+    return luaL_error(L, "Could not open file %s for writing.", filename);
   }
 
   // save architecture info (size of a lua integer)
   if (fwrite(&intsize, sizeof(intsize), 1, fp) == 0) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Could not write architecture information to file (lua_Integer size).\n"
       "errno: %d\n"
@@ -145,7 +145,7 @@ int vec_save(lua_State *L) {
   // save lua compiled info (size of lua number)
   if (fwrite(&numbersize, sizeof(numbersize), 1, fp) == 0) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Could not write architecture information to file (lua_Number size).\n"
       "errno: %d\n"
@@ -157,7 +157,7 @@ int vec_save(lua_State *L) {
   // save vector length
   if (fwrite(&self->len, sizeof(self->len), 1, fp) == 0) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Could not write vector length to file.\n"
       "errno: %d\n"
@@ -169,7 +169,7 @@ int vec_save(lua_State *L) {
   // save vector data
   if (fwrite(self->values, sizeof(*self->values), self->len, fp) == 0) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Could not write whole vector contents to file.\n"
       "errno: %d\n"
@@ -187,13 +187,13 @@ int vec_load(lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   FILE *fp = fopen(filename, "rb");
   if (fp == NULL) {
-    luaL_error(L, "Could not open file %s for reading.", filename);
+    return luaL_error(L, "Could not open file %s for reading.", filename);
   }
 
   uint8_t load_intsize;
   if (fread(&load_intsize, sizeof(load_intsize), 1, fp) == 0) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Corrupted file: could not read architecture information (lua_Integer "
       "size).\n"
@@ -204,7 +204,7 @@ int vec_load(lua_State *L) {
   }
   if (load_intsize != intsize) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Incompatible architectures: vector was saved in a machine with "
       "lua_Integer size "
@@ -215,7 +215,7 @@ int vec_load(lua_State *L) {
   uint8_t load_numbersize;
   if (fread(&load_numbersize, sizeof(load_numbersize), 1, fp) == 0) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Corrupted file: could not read architecture information (lua_Number "
       "size).\n"
@@ -226,7 +226,7 @@ int vec_load(lua_State *L) {
   }
   if (load_numbersize != numbersize) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Incompatible architectures: vector was saved in a machine with "
       "lua_Number size "
@@ -240,7 +240,7 @@ int vec_load(lua_State *L) {
   lua_Integer len;
   if (fread(&len, sizeof(len), 1, fp) == 0) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Could not read vector length from file.\n"
       "errno: %d\n"
@@ -252,7 +252,7 @@ int vec_load(lua_State *L) {
   Vector *new = _vec_push_new(L, len);
   if (((lua_Integer)fread(new->values, numbersize, len, fp)) < len) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "Could not read whole vector. Was the file truncated?\n"
       "errno: %d\n"
@@ -264,7 +264,7 @@ int vec_load(lua_State *L) {
   char dummy;
   if (fread(&dummy, sizeof(dummy), 1, fp) != 0) {
     fclose(fp);
-    luaL_error(
+    return luaL_error(
       L,
       "File has additional data after end of vector. Is this really a vector "
       "file?");
@@ -1091,9 +1091,9 @@ int vec__gc(lua_State *L) {
 }
 
 void create_vector_metatable(lua_State *L, int libstackidx) {
+  libstackidx = lua_absindex(L, libstackidx);
+
   luaL_newmetatable(L, vector_mt_name);
-  if (libstackidx < 0) // idx is relative to the top
-    libstackidx--;     // new value was pushed!
 
   lua_pushvalue(L, libstackidx);
   lua_setfield(L, -2, "__lib");
