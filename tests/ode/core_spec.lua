@@ -7,9 +7,9 @@ describe(
     describe(
       "integration methods",
       function()
-        for _, method in ipairs {"euler", "heun", "rk4"} do
+        for _, method in ipairs {"euler", "heun", "rk4", "custom"} do
           it(
-            "should include " .. method,
+            ("should include %q"):format(method),
             function()
               assert.is_function(ode[method])
             end

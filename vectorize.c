@@ -182,6 +182,8 @@ int vec_save(lua_State *L) {
   return 0;
 }
 
+// TODO vec_savetxt
+
 int vec_load(lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   FILE *fp = fopen(filename, "rb");
@@ -273,6 +275,15 @@ int vec_load(lua_State *L) {
   return 1;
 }
 
+// TODO vec_loadtxt
+
+int vec_reset(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  memset(self->values, 0, self->len * sizeof(lua_Number));
+  lua_settop(L, 1);
+  return 1;
+}
+
 int vec_dup(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   Vector *new = _vec_push_new(L, self->len);
@@ -286,6 +297,7 @@ int vec_dup_into(lua_State *L) {
   _vec_check_same_len(L, self, new);
 
   memcpy(new->values, self->values, self->len * sizeof(lua_Number));
+  lua_settop(L, 2);
   return 1;
 }
 
@@ -339,9 +351,9 @@ int vec_normalize_into(lua_State *L) {
   if (lua_gettop(L) > 1) {
     out = luaL_checkudata(L, 2, vector_mt_name);
     _vec_check_same_len(L, self, out);
+    lua_settop(L, 2);
   } else {
     out = self;
-    lua_pushvalue(L, 1);
   }
 
   for (lua_Integer i = 0; i < self->len; i++) {
@@ -406,6 +418,7 @@ int vec__newindex(lua_State *L) {
 }
 
 int vec__tostring(lua_State *L) {
+  // TODO use lua buffers instead of one giant concat
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
   lua_Integer nterms = 0;
 
@@ -539,6 +552,8 @@ int vec_psy_into(lua_State *L) {
 
   if (lua_gettop(L) > 3) {
     out = luaL_checkudata(L, 4, vector_mt_name);
+    _vec_check_same_len(L, self, out);
+    lua_settop(L, 4);
   } else {
     out = self;
     lua_pushvalue(L, 1);
@@ -564,6 +579,7 @@ int vec_hadamard_product_into(lua_State *L) {
   if (lua_gettop(L) > 2) {
     out = luaL_checkudata(L, 3, vector_mt_name);
     _vec_check_same_len(L, self, out);
+    lua_settop(L, 3);
   } else {
     out = self;
     lua_pushvalue(L, 1);
@@ -603,6 +619,7 @@ int vec_project_into(lua_State *L) {
   if (lua_gettop(L) > 2) {
     out = luaL_checkudata(L, 3, vector_mt_name);
     _vec_check_same_len(L, a, out);
+    lua_settop(L, 3);
   } else {
     out = a;
     lua_pushvalue(L, 1);
@@ -669,6 +686,7 @@ int vec_scale_into(lua_State *L) {
   if (lua_gettop(L) > 2) {
     out = luaL_checkudata(L, 3, vector_mt_name);
     _vec_check_same_len(L, self, out);
+    lua_settop(L, 3);
   } else {
     out = self;
     lua_pushvalue(L, 1);
@@ -693,6 +711,7 @@ int vec_scale(lua_State *L) {
     if (lua_gettop(L) > 1) {                                                   \
       out = luaL_checkudata(L, 2, vector_mt_name);                             \
       _vec_check_same_len(L, self, out);                                       \
+      lua_settop(L, 2);                                                        \
     } else {                                                                   \
       out = self;                                                              \
     }                                                                          \
@@ -762,6 +781,7 @@ int vec_add_into(lua_State *L) {
   Vector *out = NULL;
   if (lua_gettop(L) > 2) {
     out = luaL_checkudata(L, 3, vector_mt_name);
+    lua_settop(L, 3);
   }
 
   if (lua_isnumber(L, 1)) {
@@ -823,6 +843,7 @@ int vec_sub_into(lua_State *L) {
   Vector *out = NULL;
   if (lua_gettop(L) > 2) {
     out = luaL_checkudata(L, 3, vector_mt_name);
+    lua_settop(L, 3);
   }
 
   if (lua_isnumber(L, 1)) {
@@ -884,6 +905,7 @@ int vec_mul_into(lua_State *L) {
   Vector *out = NULL;
   if (lua_gettop(L) > 2) {
     out = luaL_checkudata(L, 3, vector_mt_name);
+    lua_settop(L, 3);
   }
 
   if (lua_isnumber(L, 1)) {
@@ -945,6 +967,7 @@ int vec_div_into(lua_State *L) {
   Vector *out = NULL;
   if (lua_gettop(L) > 2) {
     out = luaL_checkudata(L, 3, vector_mt_name);
+    lua_settop(L, 3);
   }
 
   if (lua_isnumber(L, 1)) {
@@ -1006,6 +1029,7 @@ int vec_pow_into(lua_State *L) {
   Vector *out = NULL;
   if (lua_gettop(L) > 2) {
     out = luaL_checkudata(L, 3, vector_mt_name);
+    lua_settop(L, 3);
   }
 
   if (lua_isnumber(L, 1)) {
@@ -1063,6 +1087,7 @@ int vec_pow(lua_State *L) {
   }
 }
 
+// TODO do this properly without calling scale
 int vec_neg(lua_State *L) {
   lua_pushcfunction(L, &vec_scale);
   lua_pushvalue(L, 1);
@@ -1071,6 +1096,7 @@ int vec_neg(lua_State *L) {
   return 1;
 }
 
+// TODO do this properly withou calling scale
 int vec_neg_into(lua_State *L) {
   int nargs = lua_gettop(L);
   lua_pushcfunction(L, &vec_scale_into);
