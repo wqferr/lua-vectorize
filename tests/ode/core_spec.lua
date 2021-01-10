@@ -7,7 +7,7 @@ describe(
     describe(
       "integration methods",
       function()
-        for _, method in ipairs {"euler", "heun", "rk4", "custom"} do
+        for _, method in ipairs {"euler", "heun", "rk4", "custom_solver"} do
           it(
             ("should include %q"):format(method),
             function()
