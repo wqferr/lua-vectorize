@@ -1169,6 +1169,7 @@ const struct luaL_Reg vec_functions[] = {
   {"dup_", &vec_dup_into},
   {"save", &vec_save},
   {"load", &vec_load},
+  {"reset", &vec_reset},
 
   {"add", &vec_add},
   {"add_", &vec_add_into},
