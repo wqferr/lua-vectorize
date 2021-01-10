@@ -1,5 +1,5 @@
 package = "vectorize"
-version = "scm-3"
+version = "scm-4"
 source = {
   url = "git://github.com/wqferr/lua-vectorize.git"
 }
@@ -25,9 +25,6 @@ build = {
       sources = {"vectorize.c"},
       libraries = {"m"}
     },
-    ["vectorize.ode"] = {
-      sources = {"ode.c"},
-      libraries = {"m"}
-    }
+    ["vectorize.ode"] = "ode.lua"
   }
 }
