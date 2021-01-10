@@ -79,6 +79,16 @@ generate an error.
 
 ---
 
+## Misc.
+
+### `vec.reset(v: vector)`
+
+Set all elements in the vector to 0.
+
+<br/>
+
+---
+
 ## Arithmetic
 
 ### `vec.add(x, y): vector (I)`
