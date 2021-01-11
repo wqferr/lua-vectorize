@@ -1,5 +1,5 @@
-#include "lauxlib.h"
 #include "lua.h"
+#include "lauxlib.h"
 #include <errno.h>
 #include <math.h>
 #include <stdbool.h>
@@ -8,6 +8,12 @@
 #include <string.h>
 
 #include "vector.h"
+
+#if LUA_VERSION_NUM == 504
+# define newudata(L, size) (lua_newuserdatauv(L, size, 0))
+#else
+# define newudata(L, size) (lua_newuserdata(L, size))
+#endif
 
 const char vector_lib_mt_name[] = "liblua-vectorize";
 
@@ -48,7 +54,7 @@ int vec_new(lua_State *L) {
     return luaL_error(L, "Could not allocate vector");
   }
 
-  v = lua_newuserdatauv(L, sizeof(*v), 0);
+  v = newudata(L, sizeof(*v));
   luaL_setmetatable(L, vector_mt_name);
   v->len = len;
   v->values = values;
