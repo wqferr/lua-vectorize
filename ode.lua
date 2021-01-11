@@ -69,8 +69,8 @@ local function heun_step(f, t, state, cfg, iter)
 end
 
 local function heun(integrand, initstate, stepsize)
-  if type(initstate) == 'number' then
-    initstate = vec{initstate}
+  if type(initstate) == "number" then
+    initstate = vec {initstate}
   end
   local cfg = {
     stepsize = stepsize,
@@ -82,5 +82,53 @@ local function heun(integrand, initstate, stepsize)
   return custom_solver(heun_step, integrand, initstate, cfg)
 end
 M.heun = heun
+
+local function rk4_step(f, t, state, cfg, iter)
+  local buf = cfg.buf
+  local h = cfg.stepsize
+  local h_2 = h / 2
+
+  state:dup_(buf[1])
+  local k1 = f(t, buf[1]) or buf[1]
+
+  local t_interm = t + h / 2
+
+  buf[1]:scale_(h_2, buf[2])
+  local k2_state = buf[2]:add_(state)
+  local k2 = f(t_interm, k2_state) or k2_state
+
+  buf[2]:scale_(h_2, buf[3])
+  local k3_state = buf[3]:add_(state)
+  local k3 = f(t_interm, k3_state) or k3_state
+
+  local t_final = t + h
+  buf[3]:scale_(h, buf[4])
+  local k4_state = buf[4]:add_(state)
+  local k4 = f(t_final, k4_state) or k4_state
+
+  k2:add_(k3)
+  k1:add_(k4)
+  k1:psy_(2, k2)
+  state:psy_(h / 6, k1)
+
+  return iter * h, state
+end
+
+local function rk4(integrand, initstate, stepsize)
+  if type(initstate) == "number" then
+    initstate = vec {initstate}
+  end
+  local cfg = {
+    stepsize = stepsize,
+    buf = {
+      vec(#initstate),
+      vec(#initstate),
+      vec(#initstate),
+      vec(#initstate),
+    }
+  }
+  return custom_solver(rk4_step, integrand, initstate, cfg)
+end
+M.rk4 = rk4
 
 return M
