@@ -56,10 +56,12 @@ end
 print(x) -- sin(sin(sin(sin(...sin(x)))))
 ```
 
-## Function Reference
+## Documentation
 
 The full reference to the functions implemented in this library can be found in
-the [FunctionReference.md](FunctionReference.md) file.
+the `doc` directory. See [doc/vector.md](doc/vector.md) for basic vector
+functions. See also [doc/ode.md](doc/ode.md) for basic ODE numerical
+integration functions.
 
 ## Future Development
 

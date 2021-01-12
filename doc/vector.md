@@ -1,4 +1,4 @@
-# Function Reference
+# `vectorize` module functions
 
 Functions marked with a `(I)` have an in-place variant. Check the
 [section on in-place variants](#in-place-variants) for more information.
@@ -16,7 +16,7 @@ This function can also be called as `vec(size)`.
 
 ### `vec.ones(size: number): vector`
 
-Create a new vector wiht the given length.  
+Create a new vector with the given length.  
 `size` must be a positive integer; all elements will be `1.0`.
 
 <br/>
@@ -54,7 +54,7 @@ Create a new vector with the same length and elements as `original`.
 
 ---
 
-## Serialization / Deserialization
+## Serialization / deserialization
 
 ### `vec.save(v: vector, filename: string)`
 
@@ -254,7 +254,7 @@ will tend to yield more precise results and have better performance.
 
 ---
 
-## Direct Manipulation
+## Direct manipulation
 
 ### `vec.at(x: vector, i: number): number`
 
@@ -284,7 +284,7 @@ Sum all elements of the vector.
 
 ---
 
-## Norms and Normalization
+## Norms and normalization
 
 ### `vec.norm(x: vector): number`
 
@@ -308,6 +308,8 @@ A vector with the same direction as `x`, but whose norm is `1.0`.
 
 ## Numeric integration
 
+See also: [`vectorize.ode` module](./ode.md).
+
 ### `vec.trapz(y: vector, x: vector): number`
 
 Integrate using the trapezoid method for points with heights `y` and
@@ -315,7 +317,7 @@ abscissas `x`.
 
 ---
 
-## Specialized Algebra Cases
+## Specialized algebra cases
 
 ### `vec.sq(x: vector): vector (I)`
 
@@ -347,7 +349,7 @@ Element-wise cube root of `x`.
 
 ---
 
-## Exponentials and Friends
+## Exponentials and friends
 
 ### `vec.exp(x: vector): vector (I)`
 
@@ -447,7 +449,7 @@ Element-wise application of the `atanh` hyperbolic trigonometric function.
 
 ---
 
-## In-place Variants
+## In-place variants
 
 **In-place variants provide a way to minimize memory allocations for your
 calculations. If this is not a concern for your use case, you may disregard
