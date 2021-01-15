@@ -7,7 +7,7 @@ describe(
     describe(
       "integration methods",
       function()
-        for _, method in ipairs {"euler", "heun", "rk4", "custom_solver"} do
+        for _, method in ipairs {"euler", "heun", "rk4"} do
           it(
             ("should include %q"):format(method),
             function()
@@ -15,19 +15,6 @@ describe(
             end
           )
         end
-      end
-    )
-    describe(
-      "api",
-      function()
-        it(
-          'should have a "shortcut" route',
-          function()
-            assert(false)
-            -- TODO check ode is callable
-          end
-        )
-        -- TODO more tests
       end
     )
   end
