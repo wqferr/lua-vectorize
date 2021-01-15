@@ -22,8 +22,6 @@ bool lua_isinteger(lua_State *L, int idx) {
   lua_tointegerx(L, idx, &ok);
   return ok;
 }
-#elif LUA_VERSION_NUM == 501
-#warning NOT COMPATIBLE YET!
 #endif
 
 const char vector_lib_mt_name[] = "liblua-vectorize";
