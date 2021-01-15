@@ -10,6 +10,11 @@ If a `number` is given to any as the initial state `x0`, it is converted to a
 single-elment `vector`. The parameter `h` determines the time step size of the
 method.
 
+All build-in integration methods use in-place operations, which means the
+reference to their states remains the same across iterations. If you need
+to store a state for later, you need to use `saved = solver.state:dup()`
+to preserve `saved` despite `solver.state` changing.
+
 ### `ode.euler(f: diff_f, x0: vector | number, h: number): solver`
 
 This method evaluates `f` **once** per iteration step.
@@ -37,10 +42,6 @@ method](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods) known as
 tends to be much slower than the other built-in methods. Despite that, it is a
 very popular choice due to its accuracy.
 
-### `ode.custom`
-
-#### TODO
-
 ## Type definitions
 
 ### `vector`
@@ -65,4 +66,45 @@ along with its current state `x`. It may return the new state, or it may alter
 
 ### `solver`
 
-#### TODO
+#### Public fields
+
+- `integrand`: function being integrated;
+- `t`: current simulation time;
+- `iter`: number of steps performed;
+- `state`: current simulation state;
+
+#### Methods
+
+- `solver:step(): number, vector`  
+  Perform a simulation step according to the integration method used to
+  create the solver.
+- `solver:multistep(n: number | nil): function`  
+  To be used in `for` loops, this calls `solver:step` repeatedly. If `n` is
+  ommited, it will never stop on its own.
+
+#### Examples
+
+##### Going around in a circle
+
+TODO
+
+##### Using `iterstep`
+
+```lua
+local ode = require "vectorize.ode"
+
+local function integrand(_t, x)
+  x[1], x[2] = -x[2], x[1]
+end
+
+local history = {}
+
+local solver = ode.rk4(integrand, vec {1, 0}, 0.5)
+for t, state in solver:multistep(100) do -- Perform 100 iterations
+  table.insert(history, state:dup()) -- Clone state so we can use it later!
+  print(t, state, state:norm())
+end
+
+-- At this point history would still have valid references
+do_stuff(history)
+```

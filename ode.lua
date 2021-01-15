@@ -3,7 +3,7 @@ local M = {}
 local solver = {}
 local solver_mt = {__index = solver}
 
-local function custom_solver(intmethod_step, integrand, initstate, cfg)
+local function _solver(intmethod_step, integrand, initstate, cfg)
   local s =
     setmetatable(
     {
@@ -18,13 +18,27 @@ local function custom_solver(intmethod_step, integrand, initstate, cfg)
   )
   return s
 end
-M.custom_solver = custom_solver
 
 function solver:step()
   self.iter = self.iter + 1
   self.t, self.state =
     self.intmethod_step(self.integrand, self.t, self.state, self.cfg, self.iter)
   return self.t, self.state
+end
+
+function solver:multistep(n)
+  if n == nil then
+    n = math.huge
+  end
+
+  return function()
+    if n > 0 then
+      n = n - 1
+      return self:step()
+    else
+      return nil
+    end
+  end
 end
 
 local function euler_step(f, t, state, cfg, iter)
@@ -43,7 +57,7 @@ local function euler(integrand, initstate, stepsize)
     stepsize = stepsize,
     buf = vec(#initstate)
   }
-  return custom_solver(euler_step, integrand, initstate, cfg)
+  return _solver(euler_step, integrand, initstate, cfg)
 end
 M.euler = euler
 
@@ -79,7 +93,7 @@ local function heun(integrand, initstate, stepsize)
       vec(#initstate)
     }
   }
-  return custom_solver(heun_step, integrand, initstate, cfg)
+  return _solver(heun_step, integrand, initstate, cfg)
 end
 M.heun = heun
 
@@ -124,10 +138,10 @@ local function rk4(integrand, initstate, stepsize)
       vec(#initstate),
       vec(#initstate),
       vec(#initstate),
-      vec(#initstate),
+      vec(#initstate)
     }
   }
-  return custom_solver(rk4_step, integrand, initstate, cfg)
+  return _solver(rk4_step, integrand, initstate, cfg)
 end
 M.rk4 = rk4
 
