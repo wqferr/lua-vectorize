@@ -15,7 +15,7 @@ Contributions are welcome!]],
 }
 
 dependencies = {
-  "lua >= 5.2, < 5.5"
+  "lua >= 5.1, < 5.5"
 }
 
 build = {

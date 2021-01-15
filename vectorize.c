@@ -22,6 +22,29 @@ bool lua_isinteger(lua_State *L, int idx) {
   lua_tointegerx(L, idx, &ok);
   return ok;
 }
+#elif LUA_VERSION_NUM == 501
+#define lua_isinteger(L, idx) (lua_isnumber(L, idx))
+#endif
+
+inline void setmetatable(lua_State *L, const char *mtname) {
+#if LUA_VERSION_NUM == 501
+  luaL_newmetatable(L, mtname);
+  lua_setmetatable(L, -2);
+#else
+  luaL_setmetatable(L, mtname);
+#endif
+}
+
+#if LUA_VERSION_NUM == 501
+#define luaL_len(L, idx) (lua_objlen(L, idx))
+
+int lua_absindex(lua_State *L, int i) {
+  if (i > 0) {
+    return i;
+  } else {
+    return lua_gettop(L) + i;
+  }
+}
 #endif
 
 const char vector_lib_mt_name[] = "liblua-vectorize";
@@ -64,7 +87,9 @@ int vec_new(lua_State *L) {
   }
 
   v = newudata(L, sizeof(*v));
-  luaL_setmetatable(L, vector_mt_name);
+
+  setmetatable(L, vector_mt_name);
+
   v->len = len;
   v->values = values;
   return 1;
@@ -1293,7 +1318,7 @@ extern int luaopen_vec(lua_State *L) {
   create_lib_metatable(L);
 
   luaL_newlib(L, vec_functions);
-  luaL_setmetatable(L, vector_lib_mt_name);
+  setmetatable(L, vector_lib_mt_name);
 
   create_vector_metatable(L, -1);
 
