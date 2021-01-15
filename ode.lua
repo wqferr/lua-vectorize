@@ -19,6 +19,8 @@ local function _solver(intmethod_step, integrand, initstate, cfg)
   return s
 end
 
+-- TODO expose custom solver creation in lib
+
 function solver:step()
   self.iter = self.iter + 1
   self.t, self.state =
