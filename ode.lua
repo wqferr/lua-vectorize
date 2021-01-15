@@ -1,4 +1,4 @@
-local vec = require "vectorize"
+local vec = require "vec"
 local M = {}
 local solver = {}
 local solver_mt = {__index = solver}

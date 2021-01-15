@@ -1,5 +1,5 @@
 require "luarocks.require"
-local ode = require "vectorize.ode"
+local ode = require "vec.ode"
 
 describe(
   "ode",

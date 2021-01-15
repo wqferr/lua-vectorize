@@ -1,4 +1,4 @@
-# `vectorize.ode` module functions
+# `vec.ode` module functions
 
 Custom types used in the annotations below are defined in the [type
 definitions section](#type-definitions).
@@ -49,7 +49,7 @@ very popular choice due to its accuracy.
 Userdata representing a value in $R^n$. Can be created from a list like in the following snippet:
 
 ```lua
-local vec = require "vectorize"
+local vec = require "vec"
 local my_v = vec.from {1, 2, 3} -- or simply vec {1, 2, 3}
 print(my_v) --> [1.0, 2.0, 3.0]
 ```
@@ -91,8 +91,8 @@ TODO
 ##### Using `iterstep`
 
 ```lua
-local vec = require "vectorize"
-local ode = require "vectorize.ode"
+local vec = require "vec"
+local ode = require "vec.ode"
 
 local function integrand(_t, x)
   x[1], x[2] = -x[2], x[1]

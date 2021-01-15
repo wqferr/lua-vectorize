@@ -1,4 +1,4 @@
-# `vectorize` module functions
+# `vec` module functions
 
 Functions marked with a `(I)` have an in-place variant. Check the
 [section on in-place variants](#in-place-variants) for more information.
@@ -308,7 +308,7 @@ A vector with the same direction as `x`, but whose norm is `1.0`.
 
 ## Numeric integration
 
-See also: [`vectorize.ode` module](./ode.md).
+See also: [`vec.ode` module](./ode.md).
 
 ### `vec.trapz(y: vector, x: vector): number`
 
@@ -461,7 +461,7 @@ in an existing vector instead of creating and returning a new one.
 This is done by appending a `_` to its name. For example:
 
 ```lua
-local vec = require "vectorize"
+local vec = require "vec"
 local v = vec {0, math.pi/2, math.pi, 3/2 * math.pi, 2 * math.pi}
 v:sin_() -- in-place operation: save result in self
 print(v) -- [0.0, 1.0, 0.0, 1.0, 0.0]
@@ -472,7 +472,7 @@ instead, you wish to save the result into a different vector (but still one
 that has been allocated already), that can also be done with in-place variants:
 
 ```lua
-local vec = require "vectorize"
+local vec = require "vec"
 local v = vec {1, 2, 3, 4}
 local w = vec {0, 0, 0, 0}
 

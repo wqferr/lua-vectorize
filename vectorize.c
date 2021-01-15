@@ -1280,7 +1280,7 @@ static void create_lib_metatable(lua_State *L) {
   lua_pop(L, 1);
 }
 
-extern int luaopen_vectorize(lua_State *L) {
+extern int luaopen_vec(lua_State *L) {
   create_lib_metatable(L);
 
   luaL_newlib(L, vec_functions);

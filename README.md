@@ -23,7 +23,7 @@ and exponential functions.
 ## Example Usage
 
 ```lua
-local vec = require "vectorize"
+local vec = require "vec"
 local v = vec {2, 0, 1}
 
 -- Functions can be accessed by the vec table

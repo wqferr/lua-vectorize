@@ -1,5 +1,5 @@
 require "luarocks.require"
-local vec = require "vectorize"
+local vec = require "vec"
 
 describe(
   "constructor",

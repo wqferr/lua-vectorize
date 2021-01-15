@@ -2,7 +2,7 @@
 set -e
 
 [ -z "$1" ] && { echo 'No tag given'; exit 1; }
-scm_rockspec_file='vectorize-scm-4.rockspec'
+scm_rockspec_file='vectorize-scm-0.rockspec'
 [ -f "$scm_rockspec_file" ] || { echo 'Update rockspec file name!'; exit 2; }
 
 git tag -m "$2" "$1"
