@@ -80,7 +80,7 @@ along with its current state `x`. It may return the new state, or it may alter
   create the solver.
 - `solver:multistep(n: number | nil): function`  
   To be used in `for` loops, this calls `solver:step` repeatedly. If `n` is
-  ommited, it will never stop on its own.
+  ommited, it will never break the loop on its own.
 
 #### Examples
 
@@ -91,6 +91,7 @@ TODO
 ##### Using `iterstep`
 
 ```lua
+local vec = require "vectorize"
 local ode = require "vectorize.ode"
 
 local function integrand(_t, x)
@@ -99,8 +100,8 @@ end
 
 local history = {}
 
-local solver = ode.rk4(integrand, vec {1, 0}, 0.5)
-for t, state in solver:multistep(100) do -- Perform 100 iterations
+local s = ode.rk4(integrand, vec {1, 0}, 0.05)
+for t, state in s:multistep(100) do -- Perform 100 iterations
   table.insert(history, state:dup()) -- Clone state so we can use it later!
   print(t, state, state:norm())
 end
