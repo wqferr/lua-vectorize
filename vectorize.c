@@ -1,18 +1,29 @@
-#include "lua.h"
 #include "lauxlib.h"
+#include "lua.h"
 #include <errno.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "vector.h"
 
 #if LUA_VERSION_NUM == 504
-# define newudata(L, size) (lua_newuserdatauv(L, size, 0))
+#define newudata(L, size) (lua_newuserdatauv(L, size, 0))
 #else
-# define newudata(L, size) (lua_newuserdata(L, size))
+#define newudata(L, size) (lua_newuserdata(L, size))
+#endif
+
+#if LUA_VERSION_NUM == 502
+bool lua_isinteger(lua_State *L, int idx) {
+  int ok;
+  lua_tointegerx(L, idx, &ok);
+  return ok;
+}
+#elif LUA_VERSION_NUM == 501
+#warning NOT COMPATIBLE YET!
 #endif
 
 const char vector_lib_mt_name[] = "liblua-vectorize";
