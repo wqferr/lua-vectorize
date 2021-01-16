@@ -8,9 +8,9 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-latest
-          - windows-latest
-          - ubuntu-latest
+          - {name: macos-latest, setupscript: "export MACOSX_DEPLOYMENT_TARGET='10.8' CFLAGS='-DLUAJIT_ENABLE_GC64'"}
+          - {name: windows-latest, setupscript: ""}
+          - {name: ubuntu-latest, setupscript: ""}
         lua:
           - {hererocks: "-l 5.1", name: "Lua 5.1"}
           - {hererocks: "-j latest", name: "latest LuaJIT"}
@@ -19,7 +19,7 @@ jobs:
           - {hererocks: "-l 5.3", name: "Lua 5.3"}
           - {hererocks: "-l 5.4", name: "Lua 5.4"}
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.name }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
@@ -27,15 +27,15 @@ jobs:
         with:
           packages: hererocks
 
-      - name: Set up ${{ matrix.lua.name }} for MacOS environment
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          export MACOSX_DEPLOYMENT_TARGET="10.8" CFLAGS="-DLUAJIT_ENABLE_GC64"
-          python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
+      # - name: Set up ${{ matrix.lua.name }} for MacOS environment
+      #   if: ${{ matrix.os == 'macos-latest' }}
+      #   run: |
+      #     python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
 
-      - name: Set up ${{ matrix.lua.name }} for non-MacOS environment
-        if: ${{ matrix.os != 'macos-latest' }}
-        run: python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
+      - name: Set up ${{ matrix.lua.name }}
+        run: |
+          ${{ matrix.os.setupscript }}
+          python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
 
       - name: Install vectorize and busted
         run: |
