@@ -27,7 +27,7 @@ jobs:
         with:
           packages: hererocks
       - name: Congigure MacOS environment
-        if: ${{ matrix.os = 'macos-latest' }}
+        if: ${{ matrix.os == 'macos-latest' }}
         run: export MACOSX_DEPLOYMENT_TARGET="10.8"
       - name: Set up ${{ matrix.lua.name }}
         run: python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
