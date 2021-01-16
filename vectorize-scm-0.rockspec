@@ -15,15 +15,16 @@ Contributions are welcome!]],
 }
 
 dependencies = {
-  "lua >= 5.2, < 5.5"
+  "lua >= 5.1, < 5.5"
 }
 
 build = {
   type = "builtin",
   modules = {
     vec = {
-      sources = {"vectorize.c"},
-      libraries = {"m"}
+      sources = {"vectorize.c"}
+      -- this source depends on libm, but Lua is
+      -- already linked with it
     },
     ["vec.ode"] = "ode.lua"
   }
