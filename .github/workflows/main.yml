@@ -28,9 +28,7 @@ jobs:
           packages: hererocks
       - name: Set up ${{ matrix.lua.name }}
         run: |
-          if [ ${{ matrix.os }} = macos-latest ]; then
-            export MACOSX_DEPLOYMENT_TARGET="10.8"
-          fi
+          export MACOSX_DEPLOYMENT_TARGET="10.8"
           python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
       - name: Install vectorize and busted
         run: |
