@@ -1,4 +1,4 @@
-require "luarocks.require"
+pcall(require, "luarocks.require")
 local vec = require "vec"
 
 describe(
