@@ -34,5 +34,6 @@ jobs:
           luarocks make
           luarocks install busted
       - name: Run tests
+        run:
           . ./.luaenv/bin/activate
           busted tests
