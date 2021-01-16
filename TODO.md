@@ -1,20 +1,26 @@
 # To do
 
 - [ ] Benchmark tables comparing raw lua implementations vs `vectorize` implementations
-- [ ] `vectorize/compat.h` to clean up vectorize.c
+- [ ] C code cleanup
+  - [ ] `vectorize/compat.h` to remove #ifdefs from vectorize.c
+  - [x] Use setfuncs instead of setting metatable keys manually
+  - [ ] Use lua buffers in vec\_\_tostring
 - [ ] More unit tests
+  - [x] Basic arithmetic operators
+  - [ ] ...?
 - [ ] vec functions
-    - [ ] vec:diff([n])
-    - [x] vec:neg() without using vec:scale()
-    - [ ] vec:expm1() -> exp(x) - 1
-    - [ ] vec:abs(), vec:nabs()
-    - [ ] vec:minmax()
-    - [ ] vec.lerp(t, from, to[, left[, right]])
+  - [ ] vec:diff([n])
+  - [x] vec.dot as alias for vec.inner
+  - [x] vec:neg() without using vec.scale
+  - [ ] vec:expm1() -> exp(x) - 1
+  - [ ] vec:abs(), vec:nabs()
+  - [ ] vec:minmax()
+  - [ ] vec.lerp(t, from, to[, left[, right]])
 - [ ] Possible future features:
-    - [ ] Matrix operations
-    - [ ] Complex numbers
-    - [ ] Index-sequence accessing
-    - [ ] Sequences/lists which can be appended to
-    - [ ] FFT
-    - [ ] Polynomials
-    - [ ] Statistics
+  - [ ] Matrix operations
+  - [ ] Complex numbers
+  - [ ] Index-sequence accessing
+  - [ ] Sequences/lists which can be appended to
+  - [ ] FFT
+  - [ ] Polynomials
+  - [ ] Statistics

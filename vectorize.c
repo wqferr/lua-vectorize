@@ -40,7 +40,7 @@ static inline void setmetatable(lua_State *L, const char *mtname) {
 
 #ifndef luaL_newlib
 // moonjit defines this already, need to safeguard it
-#define luaL_newlib(L, l) (luaL_newlib_(L, l, (sizeof(l)/sizeof((l)[0]) - 1)))
+#define luaL_newlib(L, l) (luaL_newlib_(L, l, (sizeof(l) / sizeof((l)[0]) - 1)))
 #endif
 
 inline void luaL_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
@@ -1188,6 +1188,20 @@ int vec__gc(lua_State *L) {
   return 0;
 }
 
+static const luaL_Reg vec_mt_funcs[] = {
+  {"__index", &vec__index},
+  {"__newindex", &vec__newindex},
+  {"__tostring", &vec__tostring},
+  {"__gc", &vec__gc},
+  {"__len", &vec__len},
+  {"__add", &vec_add},
+  {"__sub", &vec_sub},
+  {"__mul", &vec_mul},
+  {"__div", &vec_div},
+  {"__pow", &vec_pow},
+  {"__unm", &vec_neg},
+  {NULL, NULL}};
+
 void create_vector_metatable(lua_State *L, int libstackidx) {
   libstackidx = lua_absindex(L, libstackidx);
 
@@ -1196,38 +1210,7 @@ void create_vector_metatable(lua_State *L, int libstackidx) {
   lua_pushvalue(L, libstackidx);
   lua_setfield(L, -2, "__lib");
 
-  lua_pushcfunction(L, &vec__index);
-  lua_setfield(L, -2, "__index");
-
-  lua_pushcfunction(L, &vec__newindex);
-  lua_setfield(L, -2, "__newindex");
-
-  lua_pushcfunction(L, &vec__tostring);
-  lua_setfield(L, -2, "__tostring");
-
-  lua_pushcfunction(L, &vec__len);
-  lua_setfield(L, -2, "__len");
-
-  lua_pushcfunction(L, &vec_add);
-  lua_setfield(L, -2, "__add");
-
-  lua_pushcfunction(L, &vec_sub);
-  lua_setfield(L, -2, "__sub");
-
-  lua_pushcfunction(L, &vec_mul);
-  lua_setfield(L, -2, "__mul");
-
-  lua_pushcfunction(L, &vec_div);
-  lua_setfield(L, -2, "__div");
-
-  lua_pushcfunction(L, &vec_pow);
-  lua_setfield(L, -2, "__pow");
-
-  lua_pushcfunction(L, &vec_neg);
-  lua_setfield(L, -2, "__unm");
-
-  lua_pushcfunction(L, &vec__gc);
-  lua_setfield(L, -2, "__gc");
+  luaL_setfuncs(L, vec_mt_funcs, 0);
 
   lua_pop(L, 1);
 }
@@ -1265,6 +1248,7 @@ const struct luaL_Reg vec_functions[] = {
   {"scale", &vec_scale},
   {"scale_", &vec_scale_into},
   {"inner", &vec_inner},
+  {"dot", &vec_inner},
   {"project", &vec_project},
   {"project_", &vec_project_into},
   {"cosine_similarity", &vec_cosine_similarity},
