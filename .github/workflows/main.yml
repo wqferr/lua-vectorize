@@ -29,7 +29,7 @@ jobs:
       - name: ${{ matrix.lua.name }} setup
         run: |
           # brew unlink binutils
-          brew uninstall binutils
+          export MACOSX_DEPLOYMENT_TARGET="10.12" CFLAGS="-DLUAJIT_ENABLE_GC64 -DLUAJIT_ENABLE_LUA52COMPAT"
           echo $PATH
           # if [ ${{ matrix.os }} = macos-latest ]; then
           #   export PATH=/usr/bin:/bin:/usr/sbin:/sbin
