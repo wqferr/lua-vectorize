@@ -12,12 +12,12 @@ jobs:
           - windows-latest
           - ubuntu-latest
         lua:
-          - {hererocks: "-l5.1", name: "5.1"}
-          - {hererocks: "-jlatest", name: "LuaJIT-latest"}
-          - {hererocks: "-mlatest", name: "MoonJIT-latest"}
-          - {hererocks: "-l5.2", name: "5.2"}
-          - {hererocks: "-l5.3", name: "5.3"}
-          - {hererocks: "-l5.4", name: "5.4"}
+          - {hererocks: "-l 5.1", name: "5.1"}
+          - {hererocks: "-j latest", name: "LuaJIT-latest"}
+          - {hererocks: "-m latest", name: "MoonJIT-latest"}
+          - {hererocks: "-l 5.2", name: "5.2"}
+          - {hererocks: "-l 5.3", name: "5.3"}
+          - {hererocks: "-l 5.4", name: "5.4"}
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -28,7 +28,7 @@ jobs:
           packages: |
             hererocks
       - run: |
-          echo Setting up for ${{ matrix.lua.name }}
+          echo "Setting up for ${{ matrix.lua.name }}"
           python -m hererocks ${{ matrix.lua.hererocks }} -rlatest ./.luaenv
       - run: |
           . ./.luaenv/bin/activate
