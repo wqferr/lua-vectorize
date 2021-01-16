@@ -27,11 +27,6 @@ jobs:
         with:
           packages: hererocks
 
-      # - name: Set up ${{ matrix.lua.name }} for MacOS environment
-      #   if: ${{ matrix.os == 'macos-latest' }}
-      #   run: |
-      #     python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
-
       - name: Set up ${{ matrix.lua.name }}
         run: |
           ${{ matrix.os.setupscript }}
