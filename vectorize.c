@@ -17,7 +17,7 @@
 #endif
 
 #if LUA_VERSION_NUM == 502
-bool lua_isinteger(lua_State *L, int idx) {
+static inline bool lua_isinteger(lua_State *L, int idx) {
   int ok;
   lua_tointegerx(L, idx, &ok);
   return ok;
@@ -26,7 +26,7 @@ bool lua_isinteger(lua_State *L, int idx) {
 #define lua_isinteger(L, idx) (lua_isnumber(L, idx))
 #endif
 
-inline void setmetatable(lua_State *L, const char *mtname) {
+static inline void setmetatable(lua_State *L, const char *mtname) {
 #if LUA_VERSION_NUM == 501
   luaL_newmetatable(L, mtname);
   lua_setmetatable(L, -2);
@@ -38,11 +38,31 @@ inline void setmetatable(lua_State *L, const char *mtname) {
 #if LUA_VERSION_NUM == 501
 #define luaL_len(L, idx) (lua_objlen(L, idx))
 
-int lua_absindex(lua_State *L, int i) {
+#ifndef luaL_newlib
+// moonjit defines this already, need to safeguard it
+#define luaL_newlib(L, l) (luaL_newlib_(L, l, (sizeof(l)/sizeof((l)[0]) - 1)))
+#endif
+
+inline void luaL_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
+  int tidx = lua_gettop(L);
+
+  while (l->name != NULL) {
+    lua_pushcfunction(L, l->func);
+    lua_setfield(L, tidx, l->name);
+    l++;
+  }
+}
+
+static inline void luaL_newlib_(lua_State *L, const luaL_Reg *l, int size) {
+  lua_createtable(L, 0, size);
+  luaL_setfuncs(L, l, 0);
+}
+
+static inline int lua_absindex(lua_State *L, int i) {
   if (i > 0) {
     return i;
   } else {
-    return lua_gettop(L) + i;
+    return lua_gettop(L) + i + 1;
   }
 }
 #endif
