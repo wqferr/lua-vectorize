@@ -28,9 +28,10 @@ jobs:
           packages: hererocks
       - name: ${{ matrix.lua.name }} setup
         run: |
-          if [ ${{ matrix.os }} = macos-latest ]; then
-            export PATH=/usr/bin:/bin:/usr/sbin:/sbin
-          fi
+          echo $PATH
+          # if [ ${{ matrix.os }} = macos-latest ]; then
+          #   export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+          # fi
           python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
       - name: Install
         run: |
