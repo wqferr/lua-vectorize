@@ -14,7 +14,7 @@ jobs:
         lua:
           # - {hererocks: "-l 5.1", name: "Lua 5.1"}
           - {hererocks: "-j latest", name: "LuaJIT-latest"}
-          # - {hererocks: "-m latest", name: "MoonJIT-latest"}
+          - {hererocks: "-m latest", name: "MoonJIT-latest"}
           # - {hererocks: "-l 5.2", name: "Lua 5.2"}
           # - {hererocks: "-l 5.3", name: "Lua 5.3"}
           # - {hererocks: "-l 5.4", name: "Lua 5.4"}
