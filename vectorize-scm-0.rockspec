@@ -22,8 +22,7 @@ build = {
   type = "builtin",
   modules = {
     vec = {
-      sources = {"vectorize.c"},
-      libraries = {"m"}
+      sources = {"vectorize.c"}
     },
     ["vec.ode"] = "ode.lua"
   }
