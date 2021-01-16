@@ -1,15 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    paths:
-      - vector.h
-      - vectorize.c
-      - ode.lua
-      - tests/**/*.lua
-  workflow_dispatch:
+on: [pull_request]
 
 jobs:
   run-tests:
