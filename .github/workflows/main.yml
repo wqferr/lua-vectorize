@@ -12,12 +12,12 @@ jobs:
           # - windows-latest
           # - ubuntu-latest
         lua:
-          # - {hererocks: "-l 5.1", name: "Lua 5.1"}
+          - {hererocks: "-l 5.1", name: "Lua 5.1"}
           - {hererocks: "-j latest", name: "LuaJIT-latest"}
           - {hererocks: "-m latest", name: "MoonJIT-latest"}
-          # - {hererocks: "-l 5.2", name: "Lua 5.2"}
-          # - {hererocks: "-l 5.3", name: "Lua 5.3"}
-          # - {hererocks: "-l 5.4", name: "Lua 5.4"}
+          - {hererocks: "-l 5.2", name: "Lua 5.2"}
+          - {hererocks: "-l 5.3", name: "Lua 5.3"}
+          - {hererocks: "-l 5.4", name: "Lua 5.4"}
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -28,12 +28,9 @@ jobs:
           packages: hererocks
       - name: ${{ matrix.lua.name }} setup
         run: |
-          # brew unlink binutils
-          export MACOSX_DEPLOYMENT_TARGET="10.8" CFLAGS="-DLUAJIT_ENABLE_GC64"
-          echo $PATH
-          # if [ ${{ matrix.os }} = macos-latest ]; then
-          #   export PATH=/usr/bin:/bin:/usr/sbin:/sbin
-          # fi
+          if [ ${{ matrix.os }} = macos-latest ]; then
+            export MACOSX_DEPLOYMENT_TARGET="10.8" CFLAGS="-DLUAJIT_ENABLE_GC64"
+          fi
           python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
       - name: Install
         run: |
