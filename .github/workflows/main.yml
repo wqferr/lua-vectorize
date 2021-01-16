@@ -26,11 +26,17 @@ jobs:
       - uses: BSFishy/pip-action@v1
         with:
           packages: hererocks
-      - name: Congigure MacOS environment
+
+      - name: Set up ${{ matrix.lua.name }} for MacOS environment
         if: ${{ matrix.os == 'macos-latest' }}
-        run: export MACOSX_DEPLOYMENT_TARGET="10.8" CFLAGS="-DLUAJIT_ENABLE_GC64"
-      - name: Set up ${{ matrix.lua.name }}
+        run: |
+          export MACOSX_DEPLOYMENT_TARGET="10.8" CFLAGS="-DLUAJIT_ENABLE_GC64"
+          python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
+
+      - name: Set up ${{ matrix.lua.name }} for non-MacOS environment
+        if: ${{ matrix.os != 'macos-latest' }}
         run: python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
+
       - name: Install vectorize and busted
         run: |
           . ./.luaenv/bin/activate
