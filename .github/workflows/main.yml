@@ -9,12 +9,12 @@ jobs:
       matrix:
         os:
           - macos-latest
-          # - windows-latest
-          # - ubuntu-latest
+          - windows-latest
+          - ubuntu-latest
         lua:
           - {hererocks: "-l 5.1", name: "Lua 5.1"}
-          - {hererocks: "-j latest", name: "LuaJIT-latest"}
-          - {hererocks: "-m latest", name: "MoonJIT-latest"}
+          - {hererocks: "-j latest", name: "latest LuaJIT"}
+          - {hererocks: "-m latest", name: "latest MoonJIT"}
           - {hererocks: "-l 5.2", name: "Lua 5.2"}
           - {hererocks: "-l 5.3", name: "Lua 5.3"}
           - {hererocks: "-l 5.4", name: "Lua 5.4"}
@@ -26,13 +26,13 @@ jobs:
       - uses: BSFishy/pip-action@v1
         with:
           packages: hererocks
-      - name: ${{ matrix.lua.name }} setup
+      - name: Set up ${{ matrix.lua.name }}
         run: |
           if [ ${{ matrix.os }} = macos-latest ]; then
             export MACOSX_DEPLOYMENT_TARGET="10.8"
           fi
           python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
-      - name: Install
+      - name: Install vectorize and busted
         run: |
           . ./.luaenv/bin/activate
           luarocks make
