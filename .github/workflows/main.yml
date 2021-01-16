@@ -10,7 +10,7 @@ jobs:
         os:
           # - macos-latest
           - windows-latest
-          # - ubuntu-latest
+          - ubuntu-latest
         lua:
           - {hererocks: "-l 5.1", name: "Lua 5.1"}
           - {hererocks: "-j latest", name: "LuaJIT-latest"}

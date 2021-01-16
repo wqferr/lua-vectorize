@@ -23,6 +23,8 @@ build = {
   modules = {
     vec = {
       sources = {"vectorize.c"}
+      -- this source depends on libm, but Lua is
+      -- already linked with it
     },
     ["vec.ode"] = "ode.lua"
   }
