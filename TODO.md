@@ -1,8 +1,19 @@
 # To do
 
-- [x] Numerical integration for ODEs
-    - [x] Euler
-    - [x] RK4
 - [ ] Benchmark tables comparing raw lua implementations vs `vectorize` implementations
-- [ ] Something like a derivative analogous to the `trapz` function
+- [ ] `vectorize/compat.h` to clean up vectorize.c
+- [ ] More unit tests
+- [ ] vec functions
+    - [ ] vec:diff([n])
+    - [ ] vec:neg() without using vec:scale()
+    - [ ] vec:expm1() -> exp(x) - 1
+    - [ ] vec:abs(), vec:nabs()
+    - [ ] vec:minmax()
+    - [ ] vec.lerp(t, from, to[, left[, right]])
 - [ ] Matrix operations?
+- [ ] Complex numbers?
+- [ ] Index accessing?
+- [ ] Sequences/lists which can be appended to?
+- [ ] FFT?
+- [ ] Polynomials?
+- [ ] Statistics?

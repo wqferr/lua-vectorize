@@ -1147,26 +1147,31 @@ int vec_pow(lua_State *L) {
   }
 }
 
-// TODO do this properly without calling scale
-int vec_neg(lua_State *L) {
-  lua_pushcfunction(L, &vec_scale);
-  lua_pushvalue(L, 1);
-  lua_pushnumber(L, -1);
-  lua_call(L, 2, 1);
+int vec_neg_into(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  Vector *out;
+
+  if (lua_gettop(L) > 1) {
+    out = luaL_checkudata(L, 2, vector_mt_name);
+    _vec_check_same_len(L, self, out);
+    lua_settop(L, 2);
+  } else {
+    out = self;
+    lua_pushvalue(L, 1);
+  }
+
+  for (lua_Integer i = 0; i < self->len; i++) {
+    out->values[i] = -self->values[i];
+  }
+
   return 1;
 }
 
-// TODO do this properly withou calling scale
-int vec_neg_into(lua_State *L) {
-  int nargs = lua_gettop(L);
-  lua_pushcfunction(L, &vec_scale_into);
-  lua_pushvalue(L, 1);
-  lua_pushnumber(L, -1);
-  if (nargs > 1) {
-    lua_pushvalue(L, 2);
-  }
-  lua_call(L, nargs + 1, 1);
-  return 1;
+int vec_neg(lua_State *L) {
+  Vector *self = luaL_checkudata(L, 1, vector_mt_name);
+  lua_settop(L, 1);
+  _vec_push_new(L, self->len);
+  return vec_neg_into(L);
 }
 
 int vec__gc(lua_State *L) {
