@@ -20,6 +20,34 @@ local function test_binary_op(op)
     end
   )
   it(
+    "can broadcast a right-scalar",
+    function()
+      local u = vec {1, 2, 3}
+      local s = 4
+      local v = op(u, s)
+
+      assert.are.equal(#u, #v)
+
+      for i = 1, #u do
+        assert.are.equal(op(u[i], s), v[i])
+      end
+    end
+  )
+  it(
+    "can broadcast a left-scalar",
+    function()
+      local u = vec {1, 2, 3}
+      local s = 4
+      local v = op(s, u)
+
+      assert.are.equal(#u, #v)
+
+      for i = 1, #u do
+        assert.are.equal(op(s, u[i]), v[i])
+      end
+    end
+  )
+  it(
     "errors when used in vectors of different shapes",
     function()
       local u = vec(2)
@@ -72,6 +100,36 @@ describe(
         test_binary_op(
           function(a, b)
             return a - b
+          end
+        )
+      end
+    )
+    describe(
+      "mul",
+      function()
+        test_binary_op(
+          function(a, b)
+            return a * b
+          end
+        )
+      end
+    )
+    describe(
+      "div",
+      function()
+        test_binary_op(
+          function(a, b)
+            return a / b
+          end
+        )
+      end
+    )
+    describe(
+      "pow",
+      function()
+        test_binary_op(
+          function(a, b)
+            return a ^ b
           end
         )
       end

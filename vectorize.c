@@ -528,6 +528,14 @@ static inline void _vec_broadcast_add_into(
   }
 }
 
+static inline void _vec_broadcast_sub_into(
+  lua_State *L, lua_Number scalar, Vector *v, Vector *out) {
+  _vec_check_same_len(L, v, out);
+  for (lua_Integer i = 0; i < out->len; i++) {
+    out->values[i] = scalar - v->values[i];
+  }
+}
+
 static inline void _vec_broadcast_pow_rev_into(
   lua_State *L, lua_Number base, const Vector *v, Vector *out) {
   _vec_check_same_len(L, v, out);
@@ -942,7 +950,7 @@ int vec_sub(lua_State *L) {
     lua_Number scalar = lua_tonumber(L, 1);
     Vector *v = luaL_checkudata(L, 2, vector_mt_name);
     Vector *out = _vec_push_new(L, v->len);
-    _vec_broadcast_add_into(L, v, -scalar, out);
+    _vec_broadcast_sub_into(L, scalar, v, out);
     return 1;
 
   } else if (lua_isnumber(L, 2)) {
