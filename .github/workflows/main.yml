@@ -26,10 +26,11 @@ jobs:
       - uses: BSFishy/pip-action@v1
         with:
           packages: hererocks
+      - name: Congigure MacOS environment
+        if: matrix.os = 'macos-latest'
+        run: export MACOSX_DEPLOYMENT_TARGET="10.8"
       - name: Set up ${{ matrix.lua.name }}
-        run: |
-          export MACOSX_DEPLOYMENT_TARGET="10.8"
-          python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
+        run: python -m hererocks ${{ matrix.lua.hererocks }} -rlatest .luaenv
       - name: Install vectorize and busted
         run: |
           . ./.luaenv/bin/activate
