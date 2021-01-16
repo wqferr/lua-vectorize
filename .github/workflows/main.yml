@@ -30,12 +30,8 @@ jobs:
       - run: |
           echo Setting up for ${{ matrix.lua.name }}
           python -m hererocks ${{ matrix.lua.hererocks }} -rlatest ./.luaenv
+      - run: |
           . ./.luaenv/bin/activate
-      - run: |
-          which lua
-          which luarocks
-          lua --version
-      - run: |
           luarocks make
           luarocks install busted
           busted ./tests/
