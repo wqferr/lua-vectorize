@@ -28,7 +28,8 @@ jobs:
           packages: hererocks
       - name: ${{ matrix.lua.name }} setup
         run: |
-          brew unlink binutils
+          # brew unlink binutils
+          brew uninstall binutils
           echo $PATH
           # if [ ${{ matrix.os }} = macos-latest ]; then
           #   export PATH=/usr/bin:/bin:/usr/sbin:/sbin
