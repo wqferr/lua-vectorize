@@ -771,7 +771,42 @@ int vec_iter(lua_State *L) {
   return 3;
 }
 
-#define dev_vec_binop_arith_using_into(name)                                   \
+#define def_vec_binop_arith_into(name, exp_lscalar, exp_rscalar, exp_ewise)    \
+  int vec_##name##_into(lua_State *L) {                                        \
+    Vector *out = NULL;                                                        \
+    if (lua_gettop(L) > 2) {                                                   \
+      out = luaL_checkudata(L, 3, vector_mt_name);                             \
+      lua_settop(L, 3);                                                        \
+    }                                                                          \
+    if (lua_isnumber(L, 1)) {                                                  \
+      lua_Number scalar = lua_tonumber(L, 1);                                  \
+      Vector *v = luaL_checkudata(L, 2, vector_mt_name);                       \
+      if (out == NULL)                                                         \
+        out = v;                                                               \
+      exp_lscalar;                                                             \
+      return 1;                                                                \
+    } else if (lua_isnumber(L, 2)) {                                           \
+      Vector *v = luaL_checkudata(L, 1, vector_mt_name);                       \
+      lua_Number scalar = lua_tonumber(L, 2);                                  \
+      if (out == NULL) {                                                       \
+        out = v;                                                               \
+        lua_pushvalue(L, 1);                                                   \
+      }                                                                        \
+      exp_rscalar;                                                             \
+      return 1;                                                                \
+    } else {                                                                   \
+      Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);                      \
+      Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);                      \
+      if (out == NULL) {                                                       \
+        out = v1;                                                              \
+        lua_pushvalue(L, 1);                                                   \
+      }                                                                        \
+      exp_ewise;                                                               \
+      return 1;                                                                \
+    }                                                                          \
+  }
+
+#define def_vec_binop_arith_noninto(name)                                      \
   int vec_##name(lua_State *L) {                                               \
     Vector *v;                                                                 \
     lua_settop(L, 2);                                                          \
@@ -784,195 +819,35 @@ int vec_iter(lua_State *L) {
     return vec_##name##_into(L);                                               \
   }
 
-int vec_add_into(lua_State *L) {
-  Vector *out = NULL;
-  if (lua_gettop(L) > 2) {
-    out = luaL_checkudata(L, 3, vector_mt_name);
-    lua_settop(L, 3);
-  }
+def_vec_binop_arith_into(
+  add,
+  _vec_broadcast_add_into(L, v, scalar, out),
+  _vec_broadcast_add_into(L, v, scalar, out),
+  _vec_xpsy_into(L, v1, 1, v2, out));
 
-  if (lua_isnumber(L, 1)) {
-    lua_Number scalar = lua_tonumber(L, 1);
-    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-    }
-    _vec_broadcast_add_into(L, v, scalar, out);
-    return 1; // out is on top of the stack no matter the branch path
+def_vec_binop_arith_into(
+  sub,
+  _vec_broadcast_rev_sub_into(L, scalar, v, out),
+  _vec_broadcast_add_into(L, v, -scalar, out),
+  _vec_xpsy_into(L, v1, -1, v2, out));
 
-  } else if (lua_isnumber(L, 2)) {
-    lua_Number scalar = lua_tonumber(L, 2);
-    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-      lua_pushvalue(L, 1);
-    }
-    _vec_broadcast_add_into(L, v, scalar, out);
-    return 1; // out is on top of the stack no matter the branch path
+def_vec_binop_arith_into(
+  mul,
+  _vec_scale_into(L, v, scalar, out),
+  _vec_scale_into(L, v, scalar, out),
+  _vec_hadamard_product_into(L, v1, v2, out));
 
-  } else {
-    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
-    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v1;
-      lua_pushvalue(L, 1);
-    } // else out on top of stack already
-    _vec_xpsy_into(L, v1, 1, v2, out);
-    return 1;
-  }
-}
+def_vec_binop_arith_into(
+  div,
+  _vec_elmwise_div_scalar_into(L, scalar, v, out),
+  _vec_scale_reciproc_into(L, v, scalar, out),
+  _vec_elmwise_div_into(L, v1, v2, out));
 
-int vec_sub_into(lua_State *L) {
-  Vector *out = NULL;
-  if (lua_gettop(L) > 2) {
-    out = luaL_checkudata(L, 3, vector_mt_name);
-    lua_settop(L, 3);
-  }
-
-  if (lua_isnumber(L, 1)) {
-    lua_Number scalar = lua_tonumber(L, 1);
-    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-    }
-    _vec_broadcast_rev_sub_into(L, scalar, v, out);
-    return 1; // out is on top of the stack no matter the branch path
-
-  } else if (lua_isnumber(L, 2)) {
-    lua_Number scalar = lua_tonumber(L, 2);
-    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-      lua_pushvalue(L, 1);
-    }
-    _vec_broadcast_add_into(L, v, -scalar, out);
-    return 1; // out is on top of the stack no matter the branch path
-
-  } else {
-    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
-    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v1;
-      lua_pushvalue(L, 1);
-    } // else out on top of stack already
-    _vec_xpsy_into(L, v1, -1, v2, out);
-    return 1;
-  }
-}
-
-int vec_mul_into(lua_State *L) {
-  Vector *out = NULL;
-  if (lua_gettop(L) > 2) {
-    out = luaL_checkudata(L, 3, vector_mt_name);
-    lua_settop(L, 3);
-  }
-
-  if (lua_isnumber(L, 1)) {
-    lua_Number scalar = lua_tonumber(L, 1);
-    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-    }
-    _vec_scale_into(L, v, scalar, out);
-    return 1; // out is on top of the stack no matter the branch path
-
-  } else if (lua_isnumber(L, 2)) {
-    lua_Number scalar = lua_tonumber(L, 2);
-    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-      lua_pushvalue(L, 1);
-    }
-    _vec_scale_into(L, v, scalar, out);
-    return 1; // out is on top of the stack no matter the branch path
-
-  } else {
-    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
-    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v1;
-      lua_pushvalue(L, 1);
-    } // else out on top of stack already
-    _vec_hadamard_product_into(L, v1, v2, out);
-    return 1;
-  }
-}
-
-int vec_div_into(lua_State *L) {
-  Vector *out = NULL;
-  if (lua_gettop(L) > 2) {
-    out = luaL_checkudata(L, 3, vector_mt_name);
-    lua_settop(L, 3);
-  }
-
-  if (lua_isnumber(L, 1)) {
-    lua_Number scalar = lua_tonumber(L, 1);
-    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-    }
-    _vec_elmwise_div_scalar_into(L, scalar, v, out);
-    return 1; // out is on top of the stack no matter the branch path
-
-  } else if (lua_isnumber(L, 2)) {
-    lua_Number scalar = lua_tonumber(L, 2);
-    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-      lua_pushvalue(L, 1);
-    }
-    _vec_scale_reciproc_into(L, v, scalar, out);
-    return 1; // out is on top of the stack no matter the branch path
-
-  } else {
-    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
-    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v1;
-      lua_pushvalue(L, 1);
-    } // else out on top of stack already
-    _vec_elmwise_div_into(L, v1, v2, out);
-    return 1;
-  }
-}
-
-int vec_pow_into(lua_State *L) {
-  Vector *out = NULL;
-  if (lua_gettop(L) > 2) {
-    out = luaL_checkudata(L, 3, vector_mt_name);
-    lua_settop(L, 3);
-  }
-
-  if (lua_isnumber(L, 1)) {
-    lua_Number scalar = lua_tonumber(L, 1);
-    Vector *v = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-    }
-    _vec_broadcast_pow_rev_into(L, scalar, v, out);
-    return 1; // out is on top of the stack no matter the branch path
-
-  } else if (lua_isnumber(L, 2)) {
-    lua_Number scalar = lua_tonumber(L, 2);
-    Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-    if (out == NULL) {
-      out = v;
-      lua_pushvalue(L, 1);
-    }
-    _vec_broadcast_pow_into(L, v, scalar, out);
-    return 1; // out is on top of the stack no matter the branch path
-
-  } else {
-    Vector *v1 = luaL_checkudata(L, 1, vector_mt_name);
-    Vector *v2 = luaL_checkudata(L, 2, vector_mt_name);
-    if (out == NULL) {
-      out = v1;
-      lua_pushvalue(L, 1);
-    } // else out on top of stack already
-    _vec_pow_into(L, v1, v2, out);
-    return 1;
-  }
-}
+def_vec_binop_arith_into(
+  pow,
+  _vec_broadcast_pow_rev_into(L, scalar, v, out),
+  _vec_broadcast_pow_into(L, v, scalar, out),
+  _vec_pow_into(L, v1, v2, out));
 
 int vec_neg_into(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
@@ -994,11 +869,13 @@ int vec_neg_into(lua_State *L) {
   return 1;
 }
 
-dev_vec_binop_arith_using_into(add) dev_vec_binop_arith_using_into(sub)
-  dev_vec_binop_arith_using_into(mul) dev_vec_binop_arith_using_into(div)
-    dev_vec_binop_arith_using_into(pow)
+def_vec_binop_arith_noninto(add);
+def_vec_binop_arith_noninto(sub);
+def_vec_binop_arith_noninto(mul);
+def_vec_binop_arith_noninto(div);
+def_vec_binop_arith_noninto(pow);
 
-      int vec_neg(lua_State *L) {
+int vec_neg(lua_State *L) {
   Vector *self = luaL_checkudata(L, 1, vector_mt_name);
   lua_settop(L, 1);
   _vec_push_new(L, self->len);
