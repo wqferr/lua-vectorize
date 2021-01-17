@@ -454,7 +454,7 @@ static inline void _vec_broadcast_add_into(
   }
 }
 
-static inline void _vec_broadcast_sub_into(
+static inline void _vec_broadcast_rev_sub_into(
   lua_State *L, lua_Number scalar, Vector *v, Vector *out) {
   _vec_check_same_len(L, v, out);
   for (lua_Integer i = 0; i < out->len; i++) {
@@ -846,7 +846,7 @@ int vec_sub_into(lua_State *L) {
     if (out == NULL) {
       out = v;
     }
-    _vec_broadcast_add_into(L, v, -scalar, out);
+    _vec_broadcast_rev_sub_into(L, scalar, v, out);
     return 1; // out is on top of the stack no matter the branch path
 
   } else if (lua_isnumber(L, 2)) {
@@ -876,7 +876,7 @@ int vec_sub(lua_State *L) {
     lua_Number scalar = lua_tonumber(L, 1);
     Vector *v = luaL_checkudata(L, 2, vector_mt_name);
     Vector *out = _vec_push_new(L, v->len);
-    _vec_broadcast_sub_into(L, scalar, v, out);
+    _vec_broadcast_rev_sub_into(L, scalar, v, out);
     return 1;
 
   } else if (lua_isnumber(L, 2)) {

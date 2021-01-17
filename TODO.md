@@ -1,11 +1,12 @@
 # To do
 
 - [ ] Benchmark tables comparing raw lua implementations vs `vectorize` implementations
-- [x] C code cleanup
+- [ ] C code cleanup
   - [x] `vectorize/compat.h` to remove #ifdefs from vectorize.c
   - [x] Use setfuncs instead of setting metatable keys manually
   - [x] Use lua buffers in vec\_\_tostring
   - [x] Use upvalues instead of nonstandard field \_\_lib
+  - [ ] Use \_into variants for all "regular" functions which support it
 - [ ] More unit tests
   - [x] Basic arithmetic operators
   - [ ] ...?
