@@ -51,7 +51,7 @@ for _ = 1, 1000 do
     --   ^ Extra _ at the end of the function name stores
     --     result in the same variable, or you can define
     --     a destination vector as an additional parameter.
-    --     See FunctionReference.md for more information
+    --     See doc/vec.md for more information
 end
 print(x) -- sin(sin(sin(sin(...sin(x)))))
 ```
