@@ -1,8 +1,29 @@
 # To do
 
-- [x] Numerical integration for ODEs
-    - [x] Euler
-    - [x] RK4
 - [ ] Benchmark tables comparing raw lua implementations vs `vectorize` implementations
-- [ ] Something like a derivative analogous to the `trapz` function
-- [ ] Matrix operations?
+- [x] C code cleanup
+  - [x] `vectorize_compat.h` to remove #ifdefs from vectorize.c
+  - [x] Use setfuncs instead of setting metatable keys manually
+  - [x] Use lua buffers in vec\_\_tostring
+  - [x] Use upvalues instead of nonstandard field \_\_lib
+  - [x] Use \_into variants for all "regular" functions which support it
+- [ ] More unit tests
+  - [x] Basic arithmetic operators
+  - [x] Basic arithmetic functions
+  - [ ] ...?
+- [ ] vec functions
+  - [x] vec.dot as alias for vec.inner
+  - [x] vec:neg() without using vec.scale
+  - [ ] vec:diff([n])
+  - [ ] vec:expm1() -> vec:exp() - 1
+  - [ ] vec:abs(), vec:nabs()
+  - [ ] vec:minmax()
+  - [ ] vec.lerp(t, from, to[, left[, right]])
+- [ ] Possible future features:
+  - [ ] Matrix operations
+  - [ ] Complex numbers
+  - [ ] Index-sequence accessing
+  - [ ] Sequences/lists which can be appended to
+  - [ ] FFT
+  - [ ] Polynomials
+  - [ ] Statistics

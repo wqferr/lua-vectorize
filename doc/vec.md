@@ -230,8 +230,13 @@ Element-wise multiplication of `x` by `s`.
 
 ### `vec.inner(x: vector, y: vector): number`
 
-Inner product between `x` and `y`. Also known as the scalar product between
-`x` and `y`. Errors if the two vectors don't have the same length.
+Inner product between `x` and `y`. Also known as the scalar product or the dot
+product between `x` and `y`. Errors if the two vectors don't have the same
+length.
+
+#### Aliases:
+
+- `vec.dot`.
 
 <br/>
 
