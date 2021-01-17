@@ -481,39 +481,21 @@ int vec__newindex(lua_State *L) {
 }
 
 int vec__tostring(lua_State *L) {
-  // TODO use lua buffers instead of one giant concat
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
-  lua_Integer nterms = 0;
+  luaL_Buffer b;
+  luaL_buffinit(L, &b);
 
-  lua_pushstring(L, "[");
-  nterms++;
-
+  luaL_addstring(&b, "[");
   for (lua_Integer i = 0; i < v->len; i++) {
     lua_pushnumber(L, v->values[i]);
-    nterms++;
-
-    // Value is a number, tostring changes it in the stack
-    // as well as returning it
-    (void)lua_tostring(L, -1);
-
-    lua_pushstring(L, ", ");
-    nterms++;
-
-    // safety break so it doesnt crash Lua when trying to print a very long
-    // vector
-    if (nterms > 10) {
-      nterms += 2;
-      lua_pushstring(L, "...");
-      lua_pushstring(L, "");
-      break;
+    luaL_addvalue(&b);
+    if (i < v->len - 1) {
+      luaL_addstring(&b, ", ");
+    } else {
+      luaL_addstring(&b, "]");
     }
   }
-
-  // Replace last separator with a closing bracket
-  lua_pop(L, 1);
-  lua_pushstring(L, "]");
-
-  lua_concat(L, nterms);
+  luaL_pushresult(&b);
   return 1;
 }
 
