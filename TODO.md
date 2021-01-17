@@ -5,6 +5,7 @@
   - [ ] `vectorize/compat.h` to remove #ifdefs from vectorize.c
   - [x] Use setfuncs instead of setting metatable keys manually
   - [ ] Use lua buffers in vec\_\_tostring
+  - [x] Use upvalues instead of nonstandard field \_\_lib
 - [ ] More unit tests
   - [x] Basic arithmetic operators
   - [ ] ...?

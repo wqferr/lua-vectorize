@@ -44,13 +44,17 @@ static inline void setmetatable(lua_State *L, const char *mtname) {
 #endif
 
 inline void luaL_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
-  int tidx = lua_gettop(L);
+  int tidx = lua_gettop(L) - nup;
 
   while (l->name != NULL) {
-    lua_pushcfunction(L, l->func);
+    for (int i = 1; i <= nup; i++) {
+      lua_pushvalue(L, tidx + i);
+    }
+    lua_pushcclosure(L, l->func, nup);
     lua_setfield(L, tidx, l->name);
     l++;
   }
+  lua_pop(L, nup);
 }
 
 static inline void luaL_newlib_(lua_State *L, const luaL_Reg *l, int size) {
@@ -460,10 +464,9 @@ int vec__index(lua_State *L) {
     // integer indexing
     return vec_at(L);
   } else {
-    // method lookup
-    const char *fname = luaL_checkstring(L, 2);
-    luaL_getmetafield(L, 1, "__lib");
-    lua_getfield(L, -1, fname);
+    // anything else falls back to the lib
+    lua_pushvalue(L, 2);
+    lua_rawget(L, lua_upvalueindex(1));
     return 1;
   }
 }
@@ -1202,16 +1205,11 @@ static const luaL_Reg vec_mt_funcs[] = {
   {"__unm", &vec_neg},
   {NULL, NULL}};
 
-void create_vector_metatable(lua_State *L, int libstackidx) {
-  libstackidx = lua_absindex(L, libstackidx);
-
+void create_vector_metatable(lua_State *L) {
+  int libstackidx = lua_gettop(L);
   luaL_newmetatable(L, vector_mt_name);
-
   lua_pushvalue(L, libstackidx);
-  lua_setfield(L, -2, "__lib");
-
-  luaL_setfuncs(L, vec_mt_funcs, 0);
-
+  luaL_setfuncs(L, vec_mt_funcs, 1);
   lua_pop(L, 1);
 }
 
@@ -1337,7 +1335,7 @@ extern int luaopen_vec(lua_State *L) {
   luaL_newlib(L, vec_functions);
   setmetatable(L, vector_lib_mt_name);
 
-  create_vector_metatable(L, -1);
+  create_vector_metatable(L);
 
   return 1;
 }
