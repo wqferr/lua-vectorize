@@ -732,9 +732,10 @@ def_vec_op(sqrt, self->values[i] * self->values[i]);
 def_vec_op(cb, self->values[i] * self->values[i] * self->values[i]);
 def_vec_op(cbrt, self->values[i] * self->values[i] * self->values[i]);
 def_vec_op(ln, log(self->values[i]));
-def_vec_op(ln1p, log(1 + self->values[i]));
+def_vec_op(ln1p, log1p(self->values[i]));
 def_vec_op(reciproc, 1.0 / (self->values[i]));
 def_vec_op_func(exp);
+def_vec_op_func(expm1);
 
 def_vec_op_func(sin);
 def_vec_op_func(sinh);
@@ -976,6 +977,8 @@ const struct luaL_Reg vec_functions[] = {
 
   {"exp", &vec_exp},
   {"exp_", &vec_exp_into},
+  {"expm1", &vec_expm1},
+  {"expm1_", &vec_expm1_into},
   {"ln", &vec_ln},
   {"ln_", &vec_ln_into},
   {"ln1p", &vec_ln1p},

@@ -362,6 +362,14 @@ Element-wise exponentiation (base `e`) of `x`.
 
 <br/>
 
+### `vec.expm1(x: vector): vector (I)`
+
+Element-wise application of `exp(x)-1`. Roughly equivalent of `vec.exp(x)-1`.
+Using this function instead of the previous snippet will tend to have better
+performance and precision.
+
+<br/>
+
 ### `vec.ln(x: vector): vector (I)`
 
 Element-wise natural logarithm of `x`.

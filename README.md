@@ -59,7 +59,7 @@ print(x) -- sin(sin(sin(sin(...sin(x)))))
 ## Documentation
 
 The full reference to the functions implemented in this library can be found in
-the `doc` directory. See [doc/vector.md](doc/vector.md) for basic vector
+the `doc` directory. See [doc/vec.md](doc/vec.md) for basic vector
 functions. See also [doc/ode.md](doc/ode.md) for basic ODE numerical
 integration functions.
 
