@@ -411,7 +411,7 @@ int vec_diff(lua_State *L) {
   while (order > 0) {
     out->len--;
     for (lua_Integer i = 0; i < out->len; i++) {
-      out->values[i] = out->values[i+1] - out->values[i];
+      out->values[i] = out->values[i + 1] - out->values[i];
     }
     order--;
   }
@@ -905,6 +905,56 @@ int vec_neg(lua_State *L) {
   return vec_neg_into(L);
 }
 
+int vec_argminmax(lua_State *L) {
+  Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+  lua_Integer minidx = 0, maxidx = 0;
+  for (lua_Integer i = 1; i < v->len; i++) {
+    if (v->values[i] < v->values[minidx]) {
+      minidx = i;
+    }
+    if (v->values[i] > v->values[maxidx]) {
+      maxidx = i;
+    }
+  }
+
+  lua_pushinteger(L, minidx);
+  lua_pushinteger(L, maxidx);
+  return 2;
+}
+
+int vec_argmin(lua_State *L) {
+  vec_argminmax(L);
+  lua_pop(L, 1);
+  return 1;
+}
+
+int vec_argmax(lua_State *L) {
+  vec_argminmax(L);
+  return 1;
+}
+
+int vec_minmax(lua_State *L) {
+  vec_argminmax(L);
+  Vector *v = (Vector *) lua_touserdata(L, 1);
+  lua_Integer minidx = lua_tonumber(L, -2);
+  lua_Integer maxidx = lua_tonumber(L, -1);
+  lua_pop(L, 2);
+  lua_pushnumber(L, v->values[minidx]);
+  lua_pushnumber(L, v->values[maxidx]);
+  return 2;
+}
+
+int vec_min(lua_State *L)  {
+  vec_minmax(L);
+  lua_pop(L, 1);
+  return 1;
+}
+
+int vec_max(lua_State *L)  {
+  vec_minmax(L);
+  return 1;
+}
+
 int vec__gc(lua_State *L) {
   Vector *v = luaL_checkudata(L, 1, vector_mt_name);
   free(v->values);
@@ -975,6 +1025,12 @@ const struct luaL_Reg vec_functions[] = {
   {"len", &vec__len},
   {"iter", &vec_iter},
   {"sum", &vec_sum},
+  {"min", &vec_min},
+  {"max", &vec_max},
+  {"minmax", &vec_minmax},
+  {"argmin", &vec_argmin},
+  {"argmax", &vec_argmax},
+  {"argminmax", &vec_argminmax},
 
   {"norm", &vec_norm},
   {"norm2", &vec_norm2},

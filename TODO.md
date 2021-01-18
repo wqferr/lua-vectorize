@@ -11,7 +11,7 @@
   - [x] vec:diff([n])
   - [x] vec:expm1() -> vec:exp() - 1
   - [x] vec:abs(), vec:nabs()
-  - [ ] vec:minmax()
+  - [x] vec:minmax()
   - [ ] vec.lerp(t, from, to[, left[, right]])
 - [ ] Possible future features:
   - [ ] Matrix operations

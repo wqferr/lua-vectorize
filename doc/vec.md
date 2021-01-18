@@ -299,6 +299,43 @@ Sum all elements of the vector.
 
 <br/>
 
+### `vec.min(x: vector): number`
+
+Find the minimum value of `x`.
+
+<br/>
+
+### `vec.max(x: vector): number`
+
+Find the maximum value of `x`.
+
+<br/>
+
+### `vec.minmax(x: vector): number, number`
+
+Find the minimum and maximum values of `x`, returned in that order.
+
+<br/>
+
+### `vec.argmin(x: vector): number`
+
+Find the position of minimum value of `x`.
+
+<br/>
+
+### `vec.argmax(x: vector): number`
+
+Find the position of maximum value of `x`.
+
+<br/>
+
+### `vec.argminmax(x: vector): number, number`
+
+Find the positions of minimum and maximum values of `x`, returned in that
+order.
+
+<br/>
+
 ---
 
 ## Norms and normalization
