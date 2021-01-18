@@ -196,7 +196,19 @@ Raise `x` to the power of each element of `y`.
 
 This function is called automatically by `-x`.
 
-Element-wise negation of `x`. Optimized equivalent to `x:scale(-1)`.
+Element-wise negation of `x`. Optimized equivalent of `x:scale(-1)`.
+
+<br/>
+
+### `vec.abs(x: vector): vector (I)`
+
+Element-wise absolute value of `x`.
+
+<br/>
+
+### `vec.nabs(x: vector): vector (I)`
+
+Element-wise negative absolute value of `x`.
 
 <br/>
 
@@ -364,9 +376,8 @@ Element-wise exponentiation (base `e`) of `x`.
 
 ### `vec.expm1(x: vector): vector (I)`
 
-Element-wise application of `exp(x)-1`. Roughly equivalent of `vec.exp(x)-1`.
-Using this function instead of the previous snippet will tend to have better
-performance and precision.
+Roughly equivalent of `vec.exp(x)-1`. Using this function instead of the
+previous snippet will tend to have better performance and precision.
 
 <br/>
 
@@ -380,7 +391,7 @@ Element-wise natural logarithm of `x`.
 
 Element-wise natural logarithm of `1+x`. Roughly equivalent to
 `vec.ln(1+x)`. Using this function instead of the previous snippet will
-tend to have better performance.
+tend to have better performance and precision.
 
 <br/>
 

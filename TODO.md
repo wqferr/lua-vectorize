@@ -9,8 +9,8 @@
   - [x] vec.dot as alias for vec.inner
   - [x] vec:neg() without using vec.scale
   - [ ] vec:diff([n])
-  - [ ] vec:expm1() -> vec:exp() - 1
-  - [ ] vec:abs(), vec:nabs()
+  - [x] vec:expm1() -> vec:exp() - 1
+  - [x] vec:abs(), vec:nabs()
   - [ ] vec:minmax()
   - [ ] vec.lerp(t, from, to[, left[, right]])
 - [ ] Possible future features:

@@ -727,6 +727,9 @@ int vec_scale(lua_State *L) {
 
 #define def_vec_op_func(fname) def_vec_op(fname, fname(self->values[i]))
 
+def_vec_op(abs, fabs(self->values[i]));
+def_vec_op(nabs, -fabs(self->values[i]));
+
 def_vec_op(sq, self->values[i] * self->values[i]);
 def_vec_op(sqrt, self->values[i] * self->values[i]);
 def_vec_op(cb, self->values[i] * self->values[i] * self->values[i]);
@@ -960,6 +963,11 @@ const struct luaL_Reg vec_functions[] = {
   {"normalize_", &vec_normalize_into},
 
   {"trapz", &vec_trapz},
+
+  {"abs", &vec_abs},
+  {"abs_", &vec_abs_into},
+  {"nabs", &vec_nabs},
+  {"nabs_", &vec_nabs_into},
 
   {"sq", &vec_sq},
   {"sq_", &vec_sq_into},
