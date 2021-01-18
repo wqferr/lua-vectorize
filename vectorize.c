@@ -400,6 +400,25 @@ int vec_trapz(lua_State *L) {
   return 1;
 }
 
+int vec_diff(lua_State *L) {
+  const Vector *v = luaL_checkudata(L, 1, vector_mt_name);
+  luaL_argcheck(L, v->len > 0, 1, "vector has length 1");
+  lua_Integer order = luaL_optinteger(L, 2, 1);
+  luaL_argcheck(L, order > 0, 2, "non-positive order");
+  Vector *out = _vec_push_new(L, v->len);
+
+  memcpy(out->values, v->values, v->len * sizeof(*v->values));
+  while (order > 0) {
+    out->len--;
+    for (lua_Integer i = 0; i < out->len; i++) {
+      out->values[i] = out->values[i+1] - out->values[i];
+    }
+    order--;
+  }
+  out->values = realloc(out->values, out->len * sizeof(*v->values));
+  return 1;
+}
+
 int vec__index(lua_State *L) {
   if (lua_isinteger(L, 2)) {
     // integer indexing
@@ -963,6 +982,7 @@ const struct luaL_Reg vec_functions[] = {
   {"normalize_", &vec_normalize_into},
 
   {"trapz", &vec_trapz},
+  {"diff", &vec_diff},
 
   {"abs", &vec_abs},
   {"abs_", &vec_abs_into},

@@ -8,7 +8,7 @@
 - [ ] vec functions
   - [x] vec.dot as alias for vec.inner
   - [x] vec:neg() without using vec.scale
-  - [ ] vec:diff([n])
+  - [x] vec:diff([n])
   - [x] vec:expm1() -> vec:exp() - 1
   - [x] vec:abs(), vec:nabs()
   - [ ] vec:minmax()

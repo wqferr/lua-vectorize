@@ -332,6 +332,15 @@ See also: [`vec.ode` module](./ode.md).
 Integrate using the trapezoid method for points with heights `y` and
 abscissas `x`.
 
+<br/>
+
+### `vec.diff(v: vector, n: number): vector`
+
+Calculate the finite difference (the "discrete derivative") of order `n`
+over the values of `v`. If `n` is omitted, order 1 is assumed.
+
+<br/>
+
 ---
 
 ## Specialized algebra cases
